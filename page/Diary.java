@@ -6,7 +6,4 @@ import java.util.Scanner;
 
 public class Diary extends JFrame {
     
-    public Diary(){
-
-    }
 }

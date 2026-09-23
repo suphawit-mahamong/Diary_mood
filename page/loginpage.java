@@ -1,9 +1,8 @@
 package page;
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
-import java.util.Scanner;
+import javax.swing.*;
 
 public class loginpage extends JFrame {
     
@@ -14,6 +13,9 @@ public class loginpage extends JFrame {
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        ImageIcon img = new ImageIcon("C:\\Users\\sukit\\Downloads\\lib-nobg.png");
+        setIconImage(img.getImage());
         
         //สร้างปุ่มไปหน้า Login 
         JPanel Login = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -27,14 +29,13 @@ public class loginpage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() ==b){
                     //ใส่เปลี่ยนหน้า
-                    new signinpage();
-                    dispose();
+
                 }
 
             } 
-        });
+       });
 
-       setVisible(true);
+    
     }
 
     public void Login(){
@@ -71,16 +72,6 @@ public class loginpage extends JFrame {
         JButton b =new JButton("Login");
         b.setAlignmentX(Component.CENTER_ALIGNMENT);
         cp.add(b);
-        b.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() ==b){
-                    //ใส่เปลี่ยนหน้า
-                    new homepage();
-                    dispose();
-                }
-
-            } 
-        });
 
         cp.add(Box.createVerticalStrut(60));
 
