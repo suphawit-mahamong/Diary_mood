@@ -1,8 +1,7 @@
 package page;
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
-import java.util.Scanner;
+import javax.swing.*;
 
 public class signinpage extends JFrame{
     
@@ -13,6 +12,10 @@ public class signinpage extends JFrame{
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        ImageIcon img = new ImageIcon("C:\\Users\\sukit\\Downloads\\lib-nobg.png");
+        setIconImage(img.getImage());
+
         
         //สร้างปุ่มไปหน้า Login 
         JPanel Login = new JPanel(new FlowLayout(FlowLayout.RIGHT));
