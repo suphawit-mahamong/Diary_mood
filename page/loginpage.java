@@ -1,81 +1,32 @@
 package page;
-
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.Scanner;
 
-public class loginpage extends JFrame {
-    
-    public loginpage(){
+public class loginpage extends JFrame{
+    public loginpage() {
+        super("test");
+        setLayout(null);
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout());
+        JButton j = new JButton("Login");
+        JLabel i = new JLabel("usename");
         
-        pack();
-        setTitle("Diary mood");
-        setSize(650, 450);
+        p.setBounds(50, 50, 200, 100);   // x, y, width, height
+        i.setBounds(50, 160, 100, 30);
+        j.setBounds(50, 160, 100, 30);
+
+
+        add(p);
+        p.add(i);
+        add(j);
+        
+
+
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        
-        //สร้างปุ่มไปหน้า Login 
-        JPanel Login = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton b = new JButton("Sign in");
-        Login.add(b);
-        add(Login,BorderLayout.NORTH);
-
-        Login();
-
-        b.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() ==b){
-                    //ใส่เปลี่ยนหน้า
-
-                }
-
-            } 
-       });
-
-    
+        setVisible(true);
     }
-
-    public void Login(){
-        JPanel cp = new JPanel();
-        cp.setLayout(new BoxLayout(cp,BoxLayout.Y_AXIS));
-
-        cp.add(Box.createVerticalStrut(50));
-
-        JLabel text = new JLabel("Login");
-        text.setFont(new Font("Times New Roman", Font.PLAIN , 30));
-        text.setAlignmentX(Component.CENTER_ALIGNMENT);
-        cp.add(text);
-
-        cp.add(Box.createVerticalStrut(70));
-
-        JPanel User = new JPanel(new FlowLayout());
-        JLabel l1 =new JLabel("Username");
-        JTextField t1 =new JTextField(20);
-        User.add(l1);
-        User.add(t1);
-        cp.add(User);
-
-        cp.add(Box.createVerticalStrut(2));
-
-        JPanel Pass = new JPanel(new FlowLayout());
-        JLabel l2 =new JLabel("Password");
-        JPasswordField t2 =new JPasswordField(20);
-        Pass.add(l2);
-        Pass.add(t2);
-        cp.add(Pass);
-
-        cp.add(Box.createVerticalStrut(2));
-
-        JButton b =new JButton("Login");
-        b.setAlignmentX(Component.CENTER_ALIGNMENT);
-        cp.add(b);
-
-        cp.add(Box.createVerticalStrut(60));
-
-        add(cp,BorderLayout.CENTER);
-    }
-    
-    
     
 }
