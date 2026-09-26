@@ -6,16 +6,19 @@ import java.awt.event.*;
 import java.util.Scanner;
 
 public class loginpage extends JFrame {
+
+    private JTextField t1;
+    private JPasswordField t2;
     
     public loginpage(){
         
-        pack();
         setTitle("Diary mood");
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         
-        //สร้างปุ่มไปหน้า Login 
+        //สร้างปุ่มไปหน้า Sign in 
         JPanel Login = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton b = new JButton("Sign in");
         Login.add(b);
@@ -37,7 +40,7 @@ public class loginpage extends JFrame {
        setVisible(true);
     }
 
-    public void Login(){
+    private void Login(){
         JPanel cp = new JPanel();
         cp.setLayout(new BoxLayout(cp,BoxLayout.Y_AXIS));
 
@@ -52,7 +55,7 @@ public class loginpage extends JFrame {
 
         JPanel User = new JPanel(new FlowLayout());
         JLabel l1 =new JLabel("Username");
-        JTextField t1 =new JTextField(20);
+        t1 =new JTextField(20);
         User.add(l1);
         User.add(t1);
         cp.add(User);
@@ -61,7 +64,7 @@ public class loginpage extends JFrame {
 
         JPanel Pass = new JPanel(new FlowLayout());
         JLabel l2 =new JLabel("Password");
-        JPasswordField t2 =new JPasswordField(20);
+        t2 =new JPasswordField(20);
         Pass.add(l2);
         Pass.add(t2);
         cp.add(Pass);
