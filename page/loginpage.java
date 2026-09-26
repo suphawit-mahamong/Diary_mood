@@ -7,6 +7,9 @@ import java.util.Scanner;
 
 public class loginpage extends JFrame {
 
+    private JTextField t1;
+    private JPasswordField t2;
+
     private final Color background = new Color(246, 227, 229);
     private final Color purple = new Color(187, 82, 138);
     private final Color darkText = new Color(60, 55, 70);
@@ -17,6 +20,7 @@ public class loginpage extends JFrame {
         setTitle("Diary mood");
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         getContentPane().setBackground(background);
         
@@ -62,15 +66,17 @@ public class loginpage extends JFrame {
         cp.add(text);
 
         cp.add(Box.createVerticalStrut(70));
+        Dimension Size = new Dimension(75, 25);
 
         JPanel User = new JPanel(new FlowLayout());
         User.setBackground(background);
 
-        JLabel l1 =new JLabel("Username");
+        JLabel l1 =new JLabel("Username :");
         l1.setFont(new Font("SansSerif", Font.PLAIN, 14));
         l1.setForeground(darkText);
+        l1.setPreferredSize(Size);
 
-        JTextField t1 =new JTextField(20);
+        t1 =new JTextField(20);
         User.add(l1);
         User.add(t1);
         cp.add(User);
@@ -80,11 +86,12 @@ public class loginpage extends JFrame {
         JPanel Pass = new JPanel(new FlowLayout());
         Pass.setBackground(background);
 
-        JLabel l2 =new JLabel("Password");
+        JLabel l2 =new JLabel("Password :");
         l2.setFont(new Font("SansSerif", Font.PLAIN, 14));
         l2.setForeground(darkText);
+        l2.setPreferredSize(Size);
 
-        JPasswordField t2 =new JPasswordField(20);
+        t2 =new JPasswordField(20);
         Pass.add(l2);
         Pass.add(t2);
         cp.add(Pass);

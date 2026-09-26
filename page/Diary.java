@@ -27,7 +27,6 @@ public class Diary extends JFrame {
          // COLORS 
         Color background = new Color(246,227,229);
         Color purple = new Color(187,82,138);
-        Color darkText = new Color(60, 55, 70);
 
         JPanel cp =new JPanel();
         cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
