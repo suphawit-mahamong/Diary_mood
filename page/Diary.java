@@ -1,9 +1,6 @@
 package page;
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
-import java.util.Scanner;
-import java.util.Date;
 
 public class Diary extends JFrame {
 
@@ -92,3 +89,4 @@ public class Diary extends JFrame {
 
     }
 }
+
