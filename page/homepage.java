@@ -2,8 +2,6 @@ package page;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
-import java.util.Scanner;
 
 public class homepage extends JFrame {
 
@@ -134,8 +132,7 @@ public class homepage extends JFrame {
         );
 
 
-        contentPanel.add(
-                Box.createVerticalStrut(25)
+        contentPanel.add(Box.createVerticalStrut(25)
         );
 
 
@@ -145,11 +142,7 @@ public class homepage extends JFrame {
                 new JLabel("PINNED DIARY");
 
         pinnedTitle.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        16
-                )
+                new Font( "SansSerif",Font.BOLD,16)
         );
 
         pinnedTitle.setForeground(darkText);
@@ -159,14 +152,10 @@ public class homepage extends JFrame {
         );
 
 
-        contentPanel.add(
-                pinnedTitle
-        );
+        contentPanel.add(pinnedTitle);
 
 
-        contentPanel.add(
-                Box.createVerticalStrut(10)
-        );
+        contentPanel.add(Box.createVerticalStrut(10) );
 
 
         // pinned Diary 1
@@ -318,7 +307,7 @@ public class homepage extends JFrame {
 
 
 
-        // แถบไปหน้าอื่น
+        //ปุ่มไปหน้าอื่น
 
         JPanel bottomPanel =
                 new JPanel(
@@ -389,7 +378,7 @@ public class homepage extends JFrame {
         );
 
 
-        // ข้อความที่แสดงชื่อเรื่องและวันที่เป็นโน้ตแยกกัน
+        //ข้อความที่แสดงชื่อเรื่องกับวันที่เป็นโน้ตแยกกัน
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
         textPanel.setBackground(Color.WHITE);
