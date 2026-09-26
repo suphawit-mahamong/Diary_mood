@@ -12,8 +12,8 @@
 6821601551 สุกฤตา วงษ์กาวิน
 - GUI หน้า homepage
 - GUI หน้า History
-
 - ตกแต่ง ALL UI
+
 6821601623 อรชพร นิตย์สมบูรณ์
 - GUI หน้า loginpage
 - Class Diagram
