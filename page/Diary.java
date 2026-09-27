@@ -18,6 +18,7 @@ public class Diary extends JFrame {
         
         createDiary();
 
+        setLocationRelativeTo(null);
         setVisible(true);
 
     }
@@ -27,6 +28,7 @@ public class Diary extends JFrame {
          // COLORS 
         Color background = new Color(246,227,229);
         Color purple = new Color(187,82,138);
+        Color darkText = new Color(60, 55, 70);
 
         JPanel cp =new JPanel();
         cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
@@ -82,6 +84,7 @@ public class Diary extends JFrame {
         cp.add(Box.createVerticalGlue());
 
     }
+    
 
     public static void main(String[] args) {
         new Diary();
