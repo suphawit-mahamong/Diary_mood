@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.Locale;
-
 import javax.swing.*;
 
 public class Historypage extends JFrame {
@@ -431,9 +430,7 @@ public class Historypage extends JFrame {
     // MAIN (ทดสอบหน้านี้แยก)
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
             Historypage page = new Historypage();
             page.setVisible(true);
-        });
     }
 }

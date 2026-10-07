@@ -1,12 +1,18 @@
 package page;
 import java.awt.*;
+import java.io.File;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+;
+
 
 public class Diary extends JFrame {
 
     private JTextField d;
     private JTextField t;
     private JTextArea c;
+     private File s; //selectedImageFile
+    private JLabel i; //imagePreview
 
     
     public Diary(){
@@ -69,6 +75,52 @@ public class Diary extends JFrame {
         content.setAlignmentX(Component.CENTER_ALIGNMENT);
         cp.add(C);
         cp.add(content);
+
+        JButton addImageButton = new JButton("+ Add Image");
+        addImageButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addImageButton.setBackground(purple);
+        addImageButton.setForeground(Color.WHITE);
+        addImageButton.setFocusPainted(false);
+
+        // แสดงตัวอย่างรูปที่เลือก (ตอนแรกยังไม่มีรูป เลยว่างไว้ก่อน)
+        i = new JLabel();
+        i.setAlignmentX(Component.CENTER_ALIGNMENT);
+        i.setHorizontalAlignment(SwingConstants.CENTER);
+        i.setPreferredSize(new Dimension(200, 150));
+        i.setMaximumSize(new Dimension(200, 150));
+        i.setBorder(BorderFactory.createDashedBorder(darkText));
+
+        addImageButton.addActionListener(e -> {
+
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("เลือกรูปภาพ");
+
+    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+            "Image files (jpg, jpeg, png, gif)","jpg", "jpeg", "png", "gif"
+    );
+    fileChooser.setFileFilter(filter);
+
+    int result = fileChooser.showOpenDialog(this);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+
+        s = fileChooser.getSelectedFile();
+
+        ImageIcon icon = new ImageIcon(s.getPath());
+
+        // ย่อรูปให้พอดีกับกรอบ preview
+        Image scaledImage = icon.getImage().getScaledInstance(
+                200, 150, Image.SCALE_SMOOTH
+        );
+
+        i.setIcon(new ImageIcon(scaledImage));
+        i.setText(null);
+    }
+});
+
+cp.add(addImageButton);
+cp.add(Box.createVerticalStrut(10));
+cp.add(i);
 
         cp.add(Box.createVerticalStrut(30));
 
