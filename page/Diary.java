@@ -19,7 +19,7 @@ public class Diary extends JFrame {
         
         setTitle("Diary mood");
         setSize(650, 450);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         
         createDiary();
