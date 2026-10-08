@@ -7,6 +7,10 @@ import java.util.Scanner;
 
 public class loginpage extends JFrame {
 
+    private JTextField t1;
+    private JPasswordField t2;
+    private JLabel Notice;
+
     private final Color background = new Color(246, 227, 229);
     private final Color purple = new Color(187, 82, 138);
     private final Color darkText = new Color(60, 55, 70);
@@ -63,18 +67,20 @@ public class loginpage extends JFrame {
         cp.add(text);
 
         cp.add(Box.createVerticalStrut(70));
+        Dimension Size = new Dimension(75, 25);
 
-        JPanel User = new JPanel(new FlowLayout());
-        User.setBackground(background);
+        JPanel UserPanel = new JPanel(new FlowLayout());
+        UserPanel.setBackground(background);
 
         JLabel l1 =new JLabel("Username");
         l1.setFont(new Font("SansSerif", Font.PLAIN, 14));
         l1.setForeground(darkText);
+        l1.setPreferredSize(Size);
 
-        JTextField t1 =new JTextField(20);
-        User.add(l1);
-        User.add(t1);
-        cp.add(User);
+        t1 =new JTextField(20);
+        UserPanel.add(l1);
+        UserPanel.add(t1);
+        cp.add(UserPanel);
 
         cp.add(Box.createVerticalStrut(2));
 
@@ -84,8 +90,9 @@ public class loginpage extends JFrame {
         JLabel l2 =new JLabel("Password");
         l2.setFont(new Font("SansSerif", Font.PLAIN, 14));
         l2.setForeground(darkText);
+        l2.setPreferredSize(Size);
 
-        JPasswordField t2 =new JPasswordField(20);
+        t2 =new JPasswordField(20);
         Pass.add(l2);
         Pass.add(t2);
         cp.add(Pass);
@@ -99,22 +106,38 @@ public class loginpage extends JFrame {
         b.setFocusPainted(false);
         b.setAlignmentX(Component.CENTER_ALIGNMENT);
         cp.add(b);
+
+        cp.add(Box.createVerticalStrut(5));
+
+        Notice = new JLabel(" ");
+        Notice.setForeground(new Color(200, 40, 40));
+        Notice.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cp.add(Notice);
+
         b.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == b){
-                    //ใส่เปลี่ยนหน้า
+                String username = t1.getText().trim();
+                String password = new String(t2.getPassword()).trim();
+                String error = User.login(username, password);
+                if (error != null) {
+                    Notice.setText(error);
+                }
+                error = User.login (username, password);
+                if (error == null) {
                     new homepage();
                     dispose();
+                } else {
+                    Notice.setText(error);
+                    t2.setText("");
                 }
+            }
 
-            } 
+            
         });
 
         cp.add(Box.createVerticalStrut(60));
 
         add(cp,BorderLayout.CENTER);
     }
-    
-    
     
 }
