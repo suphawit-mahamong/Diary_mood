@@ -11,6 +11,11 @@ public class sidebar extends JPanel {
     private static final int SIDEBAR_EXPANDED_WIDTH = 150;
     private static final int SIDEBAR_COLLAPSED_WIDTH = 0;
 
+    // COLORS
+                Color background = new Color(246, 227, 229);
+                Color purple = new Color(187, 82, 138);
+                Color darkText = new Color(60, 55, 70);
+
     private final String currentPage;
 
     private boolean open = false;
@@ -24,14 +29,19 @@ public class sidebar extends JPanel {
     public sidebar(String currentPage) {
         this.currentPage = currentPage;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(204, 204, 204));
+        setBackground(background);
         setPreferredSize(new Dimension(SIDEBAR_COLLAPSED_WIDTH, getContentHeight()));
         currentWidth = SIDEBAR_COLLAPSED_WIDTH;
         JButton toggleButton = new JButton("☰");
+        toggleButton.setBackground(purple);
+        toggleButton.setForeground(Color.WHITE);
+        toggleButton.setOpaque(true);        
+        toggleButton.setBorderPainted(false);
         toggleButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         toggleButton.setMaximumSize(new Dimension(40, 30));
         toggleButton.setFocusPainted(false);
         toggleButton.addActionListener(e -> toggle());
+        
 
         for (String label : sidebarLabels) {
             JButton btn = new JButton(label);
@@ -42,6 +52,8 @@ public class sidebar extends JPanel {
             btn.setPreferredSize(btnSize);
             btn.setMargin(new Insets(0, 0, 0, 0));
             btn.setFocusPainted(false);
+            btn.setBackground(purple);
+            btn.setForeground(Color.WHITE);
 
             // ผูก action ตาม label ของปุ่ม
             if (label.equals(currentPage)) {
