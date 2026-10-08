@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.Locale;
+
 import javax.swing.*;
 
 public class Historypage extends JFrame {
@@ -14,13 +15,8 @@ public class Historypage extends JFrame {
     private final Color purple = new Color(187, 82, 138);
     private final Color darkText = new Color(60, 55, 70);
 
-    private static final int SIDEBAR_EXPANDED_WIDTH = 150;
-    private static final int SIDEBAR_COLLAPSED_WIDTH = 55;
-    private boolean sidebarExpanded = true;
-
-    private JPanel sidebar;
-    private final java.util.List<JButton> sidebarButtons = new java.util.ArrayList<>();
-    private final String[] sidebarLabels = { "HomePage", "HistoryPage", "Logout" };
+    private sidebar sideBar;
+    private calendar calendar;
 
     // พาเนลที่เก็บรายการ history ทั้งหมด (ไว้เพื่อลบ/กรองการ์ดออกได้)
     private JPanel listPanel;
@@ -51,6 +47,7 @@ public class Historypage extends JFrame {
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.setBackground(Color.WHITE);
         searchPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        searchPanel.setPreferredSize(new Dimension(0, 40));
         searchPanel.setMaximumSize(new Dimension(560, 40));
 
         JTextField searchField = new JTextField();
@@ -65,8 +62,25 @@ public class Historypage extends JFrame {
 
         mainPanel.add(searchPanel, BorderLayout.NORTH);
 
-        // EAST
-        mainPanel.add(createSidebar(), BorderLayout.EAST);
+        // EAST (side bar)
+        sideBar = new sidebar("HistoryPage");
+        mainPanel.add(sideBar, BorderLayout.EAST);
+        JButton menuBtn = new JButton("☰");
+        menuBtn.addActionListener(e -> sideBar.toggle());
+
+        /*
+         * JPanel topBar = new JPanel(new BorderLayout(10, 0));
+         * topBar.setBackground(background);
+         * topBar.add(searchPanel, BorderLayout.CENTER);
+         * topBar.add(menuBtn, BorderLayout.EAST);
+         * mainPanel.add(topBar, BorderLayout.NORTH);
+         */
+
+        JPanel sideWrapper = new JPanel(new BorderLayout());
+        sideWrapper.setOpaque(false);
+        sideWrapper.add(sideBar, BorderLayout.NORTH);
+
+        mainPanel.add(sideWrapper, BorderLayout.EAST);
 
         // History
 
@@ -79,15 +93,23 @@ public class Historypage extends JFrame {
         JLabel historyTitle = new JLabel("History");
         historyTitle.setFont(new Font("SansSerif", Font.BOLD, 22));
         historyTitle.setForeground(darkText);
-        historyTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // historyTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel titleRow = new JPanel(new BorderLayout());
+        titleRow.setBackground(background);
+        titleRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titleRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        titleRow.add(historyTitle, BorderLayout.WEST);
+        titleRow.add(menuBtn, BorderLayout.EAST);
 
-        centerWrapper.add(historyTitle);
+        // centerWrapper.add(historyTitle);
+        // centerWrapper.add(Box.createVerticalStrut(15));
+        centerWrapper.add(titleRow);
         centerWrapper.add(Box.createVerticalStrut(15));
 
         // Calendar
-        CalendarPanel calendarPanel = new CalendarPanel();
-        calendarPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        centerWrapper.add(calendarPanel);
+        calendar = new calendar();
+        calendar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        centerWrapper.add(calendar);
 
         // พาเเนลที่จะใส่การ์ด history เรียงกันเป็น Y_AXIS (แนวตั้ง)
         listPanel = new JPanel();
@@ -188,83 +210,6 @@ public class Historypage extends JFrame {
         card.add(actionPanel, BorderLayout.EAST);
 
         return card;
-    }
-
-    // sidebar
-    private JPanel createSidebar() {
-        sidebar = new JPanel();
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(204, 204, 204));
-        sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
-        sidebar.setPreferredSize(new Dimension(
-                sidebarExpanded ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH, 0));
-
-        JButton toggleButton = new JButton("☰");
-        toggleButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        toggleButton.setMaximumSize(new Dimension(40, 30));
-        toggleButton.setFocusPainted(false);
-        toggleButton.addActionListener(e -> toggleSidebar());
-        sidebar.add(toggleButton);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 15)));
-
-        for (String label : sidebarLabels) {
-            JButton btn = new JButton(sidebarExpanded ? label : label.substring(0, 1));
-            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            Dimension btnSize = new Dimension(sidebarExpanded ? 120 : 40, 35);
-            btn.setMaximumSize(btnSize);
-            btn.setPreferredSize(btnSize);
-            btn.setMargin(new Insets(0, 0, 0, 0));
-            btn.setFocusPainted(false);
-
-            // ผูก action ตาม label ของปุ่ม
-            switch (label) {
-                case "HomePage":
-                    btn.addActionListener(e -> {
-                        new homepage();
-                        dispose();
-                    });
-                    break;
-
-                case "HistoryPage":
-                    btn.addActionListener(e -> {
-                        new Historypage();
-                        dispose();
-                    });
-                    break;
-
-                case "Logout":
-                    btn.addActionListener(e -> {
-                        new loginpage();
-                        dispose();
-                    });
-                    break;
-            }
-
-            sidebarButtons.add(btn);
-            sidebar.add(btn);
-            sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        }
-
-        sidebar.add(Box.createVerticalGlue());
-        return sidebar;
-    }
-
-    private void toggleSidebar() {
-        sidebarExpanded = !sidebarExpanded;
-        sidebar.setPreferredSize(new Dimension(
-                sidebarExpanded ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_COLLAPSED_WIDTH, 0));
-
-        for (int i = 0; i < sidebarButtons.size(); i++) {
-            JButton btn = sidebarButtons.get(i);
-            String full = sidebarLabels[i];
-            btn.setToolTipText(full);
-            btn.setText(sidebarExpanded ? full : full.substring(0, 1));
-            btn.setMaximumSize(new Dimension(sidebarExpanded ? 120 : 40, 35));
-        }
-
-        sidebar.revalidate();
-        sidebar.repaint();
     }
 
     // Caendar
@@ -430,7 +375,9 @@ public class Historypage extends JFrame {
     // MAIN (ทดสอบหน้านี้แยก)
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
             Historypage page = new Historypage();
             page.setVisible(true);
+        });
     }
 }
