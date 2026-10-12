@@ -22,6 +22,7 @@ public class Historypage extends JFrame {
 
     // พาเนลที่เก็บรายการ history ทั้งหมด (ไว้เพื่อลบ/กรองการ์ดออกได้)
     private JPanel listPanel;
+    private JTextField searchField;
 
     public Historypage() {
 
@@ -52,7 +53,7 @@ public class Historypage extends JFrame {
         searchPanel.setPreferredSize(new Dimension(0, 40));
         searchPanel.setMaximumSize(new Dimension(560, 40));
 
-        JTextField searchField = new JTextField();
+        searchField = new JTextField();
         searchField.setFont(new Font("SansSerif", Font.PLAIN, 14));
         searchField.setBorder(null);
 
@@ -157,12 +158,25 @@ public class Historypage extends JFrame {
 
     private void refreshHistoryList() {
         listPanel.removeAll();
-        for (HistoryEntry entry : entries) {
-            listPanel.add(createHistoryCard(entry));
-            listPanel.add(Box.createVerticalStrut(10));
-        }
-        listPanel.revalidate();
-        listPanel.repaint();
+
+    String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
+    int shown = 0;
+    for (HistoryEntry entry : entries) {
+        if (!matches(entry, q)) continue;
+        listPanel.add(createHistoryCard(entry));
+        listPanel.add(Box.createVerticalStrut(10));
+        shown++;
+    }
+
+    if (shown == 0) {
+        JLabel empty = new JLabel("No diary found.");
+        empty.setForeground(darkText);
+        empty.setAlignmentX(Component.LEFT_ALIGNMENT);
+        listPanel.add(empty);
+    }
+
+    listPanel.revalidate();
+    listPanel.repaint();
     }
 
     // สร้าง history 1 ช่อง พร้อมปุ่ม แก้ไข,ลบ
@@ -248,6 +262,10 @@ public class Historypage extends JFrame {
 
         return card;
     }
+    private boolean matches(HistoryEntry e, String q) {
+    if (q.isEmpty()) return true;
+    return e.getTitle().toLowerCase().contains(q)||e.getDate().toLowerCase().contains(q);
+}
 
     // MAIN (ทดสอบหน้านี้แยก)
 

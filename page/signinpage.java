@@ -8,8 +8,8 @@ import java.util.Scanner;
 public class signinpage extends JFrame{
 
     private JTextField t1;
-    private JTextField t2;
-    private JTextField t3;
+    private JPasswordField t2;
+    private JPasswordField t3;
     private JLabel Notice;
 
     // ================= COLORS =================
@@ -99,7 +99,21 @@ public class signinpage extends JFrame{
         l2.setPreferredSize(Size);
         l2.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        t2 =new JTextField(20);
+        t2 = new JPasswordField(20);
+        t2.setLayout(new BorderLayout());
+        JButton show2 = new JButton("🔒");
+        show2.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        show2.setBorderPainted(false);
+        show2.setContentAreaFilled(false);
+        show2.setFocusPainted(false);
+        show2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            boolean hidden = t2.getEchoChar() != 0;
+            t2.setEchoChar(hidden ? (char) 0 : '\u2022');
+            show2.setText(hidden ? "🔓" : "🔒");
+            }
+        });
+        t2.add(show2, BorderLayout.EAST);
         Pass.add(l2);
         Pass.add(t2);
         cp.add(Pass);
@@ -115,8 +129,22 @@ public class signinpage extends JFrame{
         l3.setPreferredSize(Size);
         l3.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        t3 =new JTextField(20);
+        t3 =new JPasswordField(20);
+        t3.setLayout(new BorderLayout());
+        JButton show3 = new JButton("🔒");
+        show3.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        show3.setBorderPainted(false);
+        show3.setContentAreaFilled(false);
+        show3.setFocusPainted(false);
+        show3.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            boolean hidden = t3.getEchoChar() != 0;
+            t3.setEchoChar(hidden ? (char) 0 : '\u2022');
+            show3.setText(hidden ? "🔓" : "🔒");
+            }
+        });
 
+        t3.add(show3, BorderLayout.EAST);
         ConfirmPanel.add(l3);
         ConfirmPanel.add(t3);
         cp.add(ConfirmPanel);
@@ -142,23 +170,18 @@ public class signinpage extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == b){
                     String username = t1.getText().trim();
-                    String password = new String(t2.getText()).trim();
-                    String confirmPass = new String(t3.getText()).trim();
+                    String password = new String(t2.getPassword()).trim();
+                    String confirmPass = new String(t3.getPassword()).trim();
                     String error = User.signin(username, password, confirmPass);
-                    if (error != null) {
-                        Notice.setText(error);
-                        return;
-                    }
-                    error = User.signin(username, password, confirmPass);
                     if (error == null) {
                         new loginpage();
                         dispose();
                     } else {
-                        Notice.setText(error);
-                        t2.setText("");
-                        t3.setText("");
-    }
-}
+                         Notice.setText(error);
+                         t2.setText("");
+                         t3.setText("");
+                        }
+                    }
             }
         });
 

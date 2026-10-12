@@ -1,5 +1,6 @@
 package page;
 import java.io.*;
+import data.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,22 @@ public class User {
 
     private static final String user = "username,password";
     private static String file= "password.csv";
+
+    // Rep Invariant (RI):
+    //   - username != null และไม่ว่างเปล่า
+    //   - password != null และไม่ว่างเปล่า 
+    //   - MIN_LEN <= password.length() <= MAX_LEN   
+    //   - password มีตัวพิมพ์เล็กอย่างน้อย 1 ตัว
+    //   - password มีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว
+    //   - password มีตัวเลขอย่างน้อย 1 ตัว
+    //
+    // Abstraction Function (AF):
+    //   AF(username, password) = บัญชีผู้ใช้ 1 บัญชีของแอป Diary mood ที่มีชื่อเข้าสู่ระบบคือ usernameและ รหัสผ่านยืนยันตัวตนคือ password
+    //                                                    
+
+    /**
+     * ตรวจสอบว่า Rep Invariant เป็นจริงหรือไม่
+     */
 
     private void checkRep() {
         assert username!=null&&username !="";
@@ -97,14 +114,13 @@ public class User {
         if (u.getUsername().equalsIgnoreCase(username)) {
             if (u.password.equals(password))
                 return null; // สำเร็จ
-            return "Incorrect password.";
         }
     }
     return "Username not found. Please sign up first.";
 }
 
     public static String signin(String username, String password, String confirmPassword) {
-        // 1. ตรวจสอบว่ากรอกครบไหม
+        // ตรวจสอบว่ากรอกครบไหม
         if (username == null || username.trim().isEmpty())
             return "Please enter your username.";
         if (password == null || password.trim().isEmpty())
@@ -116,19 +132,27 @@ public class User {
         password = password.trim();
         confirmPassword = confirmPassword.trim();
         try {
-        // 2. ตรวจสอบรหัสตรงกันไหม
-        if (!password.equals(confirmPassword))
-            return "Password and confirm password do not match";
+            boolean hasLower = false, hasUpper = false, hasDigit = false;
+            for (int i = 0; i < password.length(); i++) {
+                char ch = password.charAt(i);
+                if (Character.isLowerCase(ch)) hasLower = true;
+                if (Character.isUpperCase(ch)) hasUpper = true;
+                if (Character.isDigit(ch)) hasDigit = true;
+            }
+            if (password.length() < MIN_LEN || password.length() > MAX_LEN|| !hasLower || !hasUpper || !hasDigit)throw new IllegalArgumentException("Password must be " + MIN_LEN + "-" + MAX_LEN+ " characters with a lowercase letter, an uppercase letter, and a number.");
 
-        // 3. ตรวจสอบชื่อซ้ำ
-        if (contains(username)) 
-            return"This username already exists.";
 
-        // 4. ตรวจสอบรูปแบบรหัสผ่าน + บันทึก
-            if (username.contains(",") || password.contains(","))throw new IllegalArgumentException("Commas (,) are not allowed");
+        // ตรวจสอบรหัสตรงกันไหม
+            if (!password.equals(confirmPassword))
+                return "Password and confirm password do not match";
+
+        // ตรวจสอบชื่อซ้ำ
+            if (contains(username)) 
+                return"This username already exists.";
+    
             User newUser = new User(username, password);
             newUser.save();
-            return null; // สำเร็จ คืนค่า null
+            return null; 
         } catch (IllegalArgumentException e) {
             return e.getMessage();
         }
