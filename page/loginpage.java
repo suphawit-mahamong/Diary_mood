@@ -93,6 +93,20 @@ public class loginpage extends JFrame {
         l2.setPreferredSize(Size);
 
         t2 =new JPasswordField(20);
+        t2.setLayout(new BorderLayout());
+        JButton show2 = new JButton("🔒");
+        show2.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        show2.setBorderPainted(false);
+        show2.setContentAreaFilled(false);
+        show2.setFocusPainted(false);
+        show2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            boolean hidden = t2.getEchoChar() != 0;
+            t2.setEchoChar(hidden ? (char) 0 : '\u2022');
+            show2.setText(hidden ? "🔓" : "🔒");
+            }
+        });
+        t2.add(show2, BorderLayout.EAST);
         Pass.add(l2);
         Pass.add(t2);
         cp.add(Pass);

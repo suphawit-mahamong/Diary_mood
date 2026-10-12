@@ -11,7 +11,7 @@ public class Diary extends JFrame {
     private JTextField d;
     private JTextField t;
     private JTextArea c;
-     private File s; //selectedImageFile
+    private File s; //selectedImageFile
     private JLabel i; //imagePreview
 
     
@@ -91,26 +91,22 @@ public class Diary extends JFrame {
         i.setBorder(BorderFactory.createDashedBorder(darkText));
 
         addImageButton.addActionListener(e -> {
-
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("เลือกรูปภาพ");
-
-    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("เลือกรูปภาพ");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
             "Image files (jpg, jpeg, png, gif)","jpg", "jpeg", "png", "gif"
-    );
-    fileChooser.setFileFilter(filter);
+        );
+        fileChooser.setFileFilter(filter);
 
-    int result = fileChooser.showOpenDialog(this);
+        int result = fileChooser.showOpenDialog(this);
 
-    if (result == JFileChooser.APPROVE_OPTION) {
-
-        s = fileChooser.getSelectedFile();
-
-        ImageIcon icon = new ImageIcon(s.getPath());
+        if (result == JFileChooser.APPROVE_OPTION) {
+            s = fileChooser.getSelectedFile();
+            ImageIcon icon = new ImageIcon(s.getPath());
 
         // ย่อรูปให้พอดีกับกรอบ preview
-        Image scaledImage = icon.getImage().getScaledInstance(
-                200, 150, Image.SCALE_SMOOTH
+            Image scaledImage = icon.getImage().getScaledInstance(
+                 200, 150, Image.SCALE_SMOOTH
         );
 
         i.setIcon(new ImageIcon(scaledImage));
