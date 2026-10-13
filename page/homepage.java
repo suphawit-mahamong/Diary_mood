@@ -68,7 +68,13 @@ public class homepage extends JFrame {
                 greetingPanel.setLayout(new BoxLayout(greetingPanel, BoxLayout.Y_AXIS));
                 greetingPanel.setBackground(background);
 
-                JLabel greetingLine1 = new JLabel("Hi, User");
+                String name;
+                if (Collection.isLoggedIn()) {
+                        name = Collection.getUser();
+                } else {
+                        name = "User";
+                }
+                JLabel greetingLine1 = new JLabel("Hi, " + name);
                 greetingLine1.setFont(new Font("SansSerif", Font.BOLD, 18));
                 greetingLine1.setForeground(darkText);
                 greetingLine1.setAlignmentX(Component.LEFT_ALIGNMENT);

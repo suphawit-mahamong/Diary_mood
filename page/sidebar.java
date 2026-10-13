@@ -76,6 +76,7 @@ public class sidebar extends JPanel {
 
                     case "Logout":
                         btn.addActionListener(e -> {
+                            Collection.logout();
                             new loginpage();
                             SwingUtilities.getWindowAncestor(this).dispose();
                         });

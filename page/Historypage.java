@@ -59,9 +59,14 @@ public class Historypage extends JFrame {
 
         JLabel searchIcon = new JLabel("🔎");
         searchIcon.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
+        searchIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         searchPanel.add(searchIcon, BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
+        searchIcon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) { 
+                refreshHistoryList(); }
+        });
+        
 
         mainPanel.add(searchPanel, BorderLayout.NORTH);
 
