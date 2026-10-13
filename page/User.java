@@ -113,6 +113,7 @@ public class User {
     for (User u : readUsers()) {
         if (u.getUsername().equalsIgnoreCase(username)) {
             if (u.password.equals(password))
+                Collection.login(u.getUsername());
                 return null; // สำเร็จ
         }
     }

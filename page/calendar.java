@@ -13,6 +13,10 @@ public class calendar extends JPanel {
 
     private YearMonth currentYearMonth;
     private LocalDate selectedDate;
+    // ================= COLORS =================
+    private final Color background = new Color(246, 227, 229);
+    private final Color purple = new Color(187, 82, 138);
+    private final Color darkText = new Color(60, 55, 70);
 
     private final JLabel monthYearLabel = new JLabel("", SwingConstants.CENTER);
     private final JPanel daysPanel = new JPanel(new GridLayout(6, 7));
