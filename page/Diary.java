@@ -33,6 +33,19 @@ public class Diary extends JFrame {
 
     }
 
+    private void pickDate() {
+        JDialog dialog = new JDialog(this, "Select date", true);
+        calendar cal = new calendar();
+        cal.setOnDatePicked(picked -> {
+            d.setText(picked.toString());
+            dialog.dispose();
+        });
+        dialog.add(cal);
+        dialog.setSize(450, 350);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     private void createDiary() {
 
         // COLORS
@@ -46,13 +59,21 @@ public class Diary extends JFrame {
         cp.add(Box.createVerticalGlue());
 
         cp.add(Box.createVerticalStrut(40));
-        JPanel Date = new JPanel(new FlowLayout());
+        JPanel Date = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 0));
         JLabel D = new JLabel("Date");
         D.setAlignmentX(Component.LEFT_ALIGNMENT);
-        d = new JTextField(30);
+        d = new JTextField(10);
         Date.setBackground(background);
+        d.setEditable(false);
+        d.setText(LocalDate.now().toString());
+
+        JButton pickDateButton = new JButton("📅");
+        pickDateButton.addActionListener(e -> pickDate());
+        pickDateButton.setMargin(new Insets(2, 6, 2, 6));
+        pickDateButton.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
         Date.add(D);
         Date.add(d);
+        Date.add(pickDateButton);
         cp.add(Date);
 
         cp.add(Box.createVerticalStrut(2));
