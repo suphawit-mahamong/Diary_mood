@@ -2,6 +2,7 @@ package page;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.Scanner;
 
 public class signinpage extends JFrame{
 
@@ -22,6 +23,7 @@ public class signinpage extends JFrame{
         setTitle("Diary mood");
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
         getContentPane().setBackground(background);
 
         //สร้างปุ่มไปหน้า Login 

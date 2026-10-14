@@ -1,4 +1,5 @@
 package page;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ public class User {
     static final int MAX_LEN = 20;
 
     private static final String user = "username,password";
-    private static String file= "password.csv";
+    private static String file= "./data/password.csv";
 
     // Rep Invariant (RI):
     //   - username != null และไม่ว่างเปล่า
@@ -62,7 +63,7 @@ public class User {
     // อ่านผู้ใช้งาน
     private static List<User> readUsers() {
         List<User> users = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("./data/password.csv"))){
+        try (BufferedReader br = new BufferedReader(new FileReader(file))){
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
@@ -169,20 +170,10 @@ public class User {
         File f = new File(file);
         boolean needHeader = !f.exists() || f.length() == 0;
 
-        try (BufferedWriter bw = new BufferedWriter((new FileWriter("./data/password.csv",true)))) {
+        try (BufferedWriter bw = new BufferedWriter((new FileWriter(file,true)))) {
             if (needHeader) {
                 bw.write(user + "\n");
-            } else {
-                // ขึ้นบรรทัดใหม่
-                try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
-                    long len = raf.length();
-                    if (len > 0) {
-                        raf.seek(len - 1);
-                        if (raf.read() != '\n')
-                            bw.write("\n");
-                    }
-                }
-            }
+            } 
             bw.write(username + "," + password + "\n");
         } catch (IOException e) {
             e.printStackTrace();
