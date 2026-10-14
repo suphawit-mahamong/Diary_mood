@@ -1,6 +1,9 @@
 package page;
+
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.*;
+import java.util.*;
 import javax.swing.Timer;
 
 public class sidebar extends JPanel {

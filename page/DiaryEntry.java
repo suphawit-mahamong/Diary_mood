@@ -29,6 +29,11 @@ public class DiaryEntry {
     }
 
     public String getContent() {
+        try {
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return content;
     }
 
