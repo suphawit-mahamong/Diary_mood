@@ -1,27 +1,31 @@
 package page;
+
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-;
-
+import java.time.format.DateTimeParseException;
 
 public class Diary extends JFrame {
 
     private JTextField d;
     private JTextField t;
     private JTextArea c;
-    private File s; //selectedImageFile
-    private JLabel i; //imagePreview
+    private File s; // selectedImageFile
+    private JLabel i; // imagePreview
+    private DiaryStorage storage;
 
-    
-    public Diary(){
-        
+    public Diary() {
+
         setTitle("Diary mood");
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        
+
+        storage = new DiaryStorage(new File("diaries"));
         createDiary();
 
         setLocationRelativeTo(null);
@@ -29,21 +33,21 @@ public class Diary extends JFrame {
 
     }
 
-    private void createDiary(){
+    private void createDiary() {
 
-         // COLORS 
-        Color background = new Color(246,227,229);
-        Color purple = new Color(187,82,138);
+        // COLORS
+        Color background = new Color(246, 227, 229);
+        Color purple = new Color(187, 82, 138);
         Color darkText = new Color(60, 55, 70);
 
-        JPanel cp =new JPanel();
+        JPanel cp = new JPanel();
         cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
         cp.setBackground(background);
         cp.add(Box.createVerticalGlue());
 
         cp.add(Box.createVerticalStrut(40));
         JPanel Date = new JPanel(new FlowLayout());
-        JLabel D =new JLabel("Date");
+        JLabel D = new JLabel("Date");
         D.setAlignmentX(Component.LEFT_ALIGNMENT);
         d = new JTextField(30);
         Date.setBackground(background);
@@ -66,12 +70,12 @@ public class Diary extends JFrame {
 
         JLabel C = new JLabel("Content");
         C.setAlignmentX(Component.CENTER_ALIGNMENT);
-        c = new JTextArea(10,20);
+        c = new JTextArea(10, 20);
         c.setLineWrap(true);
         c.setWrapStyleWord(true);
 
         JScrollPane content = new JScrollPane(c);
-        content.setMaximumSize(new Dimension(600,350));
+        content.setMaximumSize(new Dimension(600, 350));
         content.setAlignmentX(Component.CENTER_ALIGNMENT);
         cp.add(C);
         cp.add(content);
@@ -94,29 +98,27 @@ public class Diary extends JFrame {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("เลือกรูปภาพ");
             FileNameExtensionFilter filter = new FileNameExtensionFilter(
-            "Image files (jpg, jpeg, png, gif)","jpg", "jpeg", "png", "gif"
-        );
-        fileChooser.setFileFilter(filter);
+                    "Image files (jpg, jpeg, png, gif)", "jpg", "jpeg", "png", "gif");
+            fileChooser.setFileFilter(filter);
 
-        int result = fileChooser.showOpenDialog(this);
+            int result = fileChooser.showOpenDialog(this);
 
-        if (result == JFileChooser.APPROVE_OPTION) {
-            s = fileChooser.getSelectedFile();
-            ImageIcon icon = new ImageIcon(s.getPath());
+            if (result == JFileChooser.APPROVE_OPTION) {
+                s = fileChooser.getSelectedFile();
+                ImageIcon icon = new ImageIcon(s.getPath());
 
-        // ย่อรูปให้พอดีกับกรอบ preview
-            Image scaledImage = icon.getImage().getScaledInstance(
-                 200, 150, Image.SCALE_SMOOTH
-        );
+                // ย่อรูปให้พอดีกับกรอบ preview
+                Image scaledImage = icon.getImage().getScaledInstance(
+                        200, 150, Image.SCALE_SMOOTH);
 
-        i.setIcon(new ImageIcon(scaledImage));
-        i.setText(null);
-    }
-});
+                i.setIcon(new ImageIcon(scaledImage));
+                i.setText(null);
+            }
+        });
 
-cp.add(addImageButton);
-cp.add(Box.createVerticalStrut(10));
-cp.add(i);
+        cp.add(addImageButton);
+        cp.add(Box.createVerticalStrut(10));
+        cp.add(i);
 
         cp.add(Box.createVerticalStrut(30));
 
@@ -125,18 +127,51 @@ cp.add(i);
         cp.add(b);
         b.setBackground(purple);
         b.setForeground(Color.WHITE);
+        b.addActionListener(e -> {
+            // 1. ดึงค่าจาก d, t, c, s
+            // 2. เช็กว่าช่องไม่ว่าง
+            // 3. เขียนลงไฟล์ CSV
+            // 4. เคลียร์ช่อง / แจ้งผู้ใช้ว่าบันทึกแล้ว
+            String dateText = d.getText();
+            String titleText = t.getText();
+            String contentText = c.getText();
+            String imagePath = (s == null) ? null : s.getPath();
+            if (dateText.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Please enter a date");
+                return;
+            }
+            if (titleText.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Please enter a title");
+                return;
+            }
+            try {
+                LocalDate date = LocalDate.parse(dateText);
+                DiaryEntry entry = new DiaryEntry(storage.createNewId(), date, titleText, contentText, imagePath);
+                storage.save(entry);
+                JOptionPane.showMessageDialog(this, "Saved!");
+                d.setText("");
+                t.setText("");
+                c.setText("");
+                s = null;
+                i.setIcon(null);
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "พิมพ์วันที่เป็นรูปแบบ yyyy-MM-dd เช่น 2026-10-13");
+                return;
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Save failed: " + ex.getMessage());
+                return;
+            }
+        });
 
         cp.add(Box.createVerticalStrut(20));
 
-        add(cp,BorderLayout.CENTER);
+        add(cp, BorderLayout.CENTER);
         cp.add(Box.createVerticalGlue());
 
     }
-    
 
     public static void main(String[] args) {
         new Diary();
 
     }
 }
-
