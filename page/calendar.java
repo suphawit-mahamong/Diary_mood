@@ -21,6 +21,7 @@ public class calendar extends JPanel {
     private final JLabel monthYearLabel = new JLabel("", SwingConstants.CENTER);
     private final JPanel daysPanel = new JPanel(new GridLayout(6, 7));
     private final JLabel selectedDateLabel = new JLabel(" ", SwingConstants.CENTER);
+    private java.util.function.Consumer<LocalDate> onDatePicked;
 
     public calendar() {
         currentYearMonth = YearMonth.now();
@@ -157,6 +158,9 @@ public class calendar extends JPanel {
         dayButton.addActionListener(e -> {
             selectedDate = date;
             refreshCalendar();
+            if (onDatePicked != null) {
+                onDatePicked.accept(date);
+            }
         });
 
         return dayButton;
@@ -169,6 +173,14 @@ public class calendar extends JPanel {
         selectedDateLabel.setText(
                 "Selected: " + dayOfWeek + ", " + month + " " + selectedDate.getDayOfMonth()
                         + ", " + year);
+    }
+
+    public LocalDate getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setOnDatePicked(java.util.function.Consumer<LocalDate> listener) {
+        this.onDatePicked = listener;
     }
 
 }

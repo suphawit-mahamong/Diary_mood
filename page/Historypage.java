@@ -25,6 +25,8 @@ public class Historypage extends JFrame {
     private final DiaryStorage storage = new DiaryStorage(new File("diaries"));
     private final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yy");
     private List<DiaryEntry> entries = new ArrayList<>();
+    private LocalDate filterDate = null;
+    private JLabel filterLabel = new JLabel("Showing: all");
 
     // พาเนลที่เก็บรายการ history ทั้งหมด (ไว้เพื่อลบ/กรองการ์ดออกได้)
     private JPanel listPanel;
@@ -122,8 +124,19 @@ public class Historypage extends JFrame {
 
         // Calendar
         calendar = new calendar();
+        calendar.setOnDatePicked(picked -> {
+            if (picked.equals(filterDate)) {
+                filterDate = null; // กดวันเดิมซ้ำ = ยกเลิกตัวกรอง
+            } else {
+                filterDate = picked;
+            }
+            refreshHistoryList();
+        });
         calendar.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerWrapper.add(calendar);
+        filterLabel.setForeground(darkText);
+        filterLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        centerWrapper.add(filterLabel);
 
         // พาเเนลที่จะใส่การ์ด history เรียงกันเป็น Y_AXIS (แนวตั้ง)
         listPanel = new JPanel();
@@ -164,7 +177,8 @@ public class Historypage extends JFrame {
 
     private void refreshHistoryList() {
         listPanel.removeAll();
-
+        filterLabel.setText(filterDate == null ? "Showing: all"
+        : "Showing: " + filterDate.format(dateFmt) + " (click again to show all)");
         String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
         int shown = 0;
         for (DiaryEntry entry : entries) {
@@ -274,6 +288,9 @@ public class Historypage extends JFrame {
     }
 
     private boolean matches(DiaryEntry e, String q) {
+        if (filterDate != null && !e.getDate().equals(filterDate)) {
+            return false;
+        }
         if (q.isEmpty())
             return true;
         return e.getTitle().toLowerCase().contains(q) || e.getDate().format(dateFmt).toLowerCase().contains(q);
