@@ -136,7 +136,7 @@ public class homepage extends JFrame {
                 contentPanel.add(pinnedTitle);
                 contentPanel.add(Box.createVerticalStrut(10));
 
-                // pinned 
+                // pinned
 
                 pinnedPanel = new JPanel();
                 pinnedPanel.setLayout(new BoxLayout(pinnedPanel, BoxLayout.Y_AXIS));
@@ -155,7 +155,7 @@ public class homepage extends JFrame {
                 contentPanel.add(ListToDoTitle);
                 contentPanel.add(Box.createVerticalStrut(10));
 
-                JPanel todoPanel = new JPanel(new BorderLayout(0,8));
+                JPanel todoPanel = new JPanel(new BorderLayout(0, 8));
                 todoPanel.setBackground(Color.WHITE);
                 todoPanel.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
                 todoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 145));
@@ -175,7 +175,7 @@ public class homepage extends JFrame {
                 todoList = new JPanel();
                 todoList.setLayout(new BoxLayout(todoList, BoxLayout.Y_AXIS));
                 todoList.setBackground(Color.WHITE);
-                
+
                 JScrollPane todoScroll = new JScrollPane(todoList);
                 todoScroll.setBorder(null);
                 todoScroll.getViewport().setBackground(Color.WHITE);
@@ -196,7 +196,8 @@ public class homepage extends JFrame {
                         }
                 };
                 addTodoButton.addActionListener(addTodoAction);
-                todoField.addActionListener(addTodoAction);contentPanel.add(todoPanel);
+                todoField.addActionListener(addTodoAction);
+                contentPanel.add(todoPanel);
 
                 mainPanel.add(contentPanel, BorderLayout.CENTER);
 
@@ -279,7 +280,7 @@ public class homepage extends JFrame {
                 return note;
         }
 
-                private void addTodo(String text) {
+        private void addTodo(String text) {
                 JCheckBox box = new JCheckBox(text);
                 box.setBackground(Color.WHITE);
                 box.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -288,7 +289,7 @@ public class homepage extends JFrame {
                 box.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                                 if (box.isSelected()) {
-                                        todoList.remove(box);   // ติ๊กแล้วหายไป
+                                        todoList.remove(box); // ติ๊กแล้วหายไป
                                         todoList.revalidate();
                                         todoList.repaint();
                                 }
@@ -298,6 +299,5 @@ public class homepage extends JFrame {
                 todoList.revalidate();
                 todoList.repaint();
         }
-        
 
 }
