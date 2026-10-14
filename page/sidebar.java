@@ -12,9 +12,9 @@ public class sidebar extends JPanel {
     private static final int SIDEBAR_COLLAPSED_WIDTH = 0;
 
     // COLORS
-                Color background = new Color(246, 227, 229);
-                Color purple = new Color(187, 82, 138);
-                Color darkText = new Color(60, 55, 70);
+    Color background = new Color(246, 227, 229);
+    Color purple = new Color(187, 82, 138);
+    Color darkText = new Color(60, 55, 70);
 
     private final String currentPage;
 
@@ -35,13 +35,12 @@ public class sidebar extends JPanel {
         JButton toggleButton = new JButton("☰");
         toggleButton.setBackground(purple);
         toggleButton.setForeground(Color.WHITE);
-        toggleButton.setOpaque(true);        
+        toggleButton.setOpaque(true);
         toggleButton.setBorderPainted(false);
         toggleButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         toggleButton.setMaximumSize(new Dimension(40, 30));
         toggleButton.setFocusPainted(false);
         toggleButton.addActionListener(e -> toggle());
-        
 
         for (String label : sidebarLabels) {
             JButton btn = new JButton(label);

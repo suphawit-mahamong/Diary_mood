@@ -1,11 +1,15 @@
 package page;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import javax.swing.*;
 
@@ -18,7 +22,9 @@ public class Historypage extends JFrame {
 
     private sidebar sideBar;
     private calendar calendar;
-    private final List<HistoryEntry> entries = new ArrayList<>();
+    private final DiaryStorage storage = new DiaryStorage(new File("diaries"));
+    private final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yy");
+    private List<DiaryEntry> entries = new ArrayList<>();
 
     // พาเนลที่เก็บรายการ history ทั้งหมด (ไว้เพื่อลบ/กรองการ์ดออกได้)
     private JPanel listPanel;
@@ -63,10 +69,10 @@ public class Historypage extends JFrame {
         searchPanel.add(searchIcon, BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchIcon.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) { 
-                refreshHistoryList(); }
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                refreshHistoryList();
+            }
         });
-        
 
         mainPanel.add(searchPanel, BorderLayout.NORTH);
 
@@ -126,9 +132,8 @@ public class Historypage extends JFrame {
         listPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // ข้อมูลสมมติ
-        addHistoryEntry("12/09/26", "Title1");
-        addHistoryEntry("13/09/26", "Title2");
-        addHistoryEntry("14/09/26", "Title3");
+        entries = storage.loadAll();
+        refreshHistoryList();
 
         JScrollPane scrollPane = new JScrollPane(listPanel);
         scrollPane.setBorder(null);
@@ -147,7 +152,7 @@ public class Historypage extends JFrame {
 
     // เพิ่มรายการ history ใหม่เข้า listPanel
 
-    // private void addHistoryEntry(String date, String title) {
+    // private void DiaryEntry(String date, String title) {
 
     // JPanel card = createHistoryCard(date, title);
     // listPanel.add(card);
@@ -156,38 +161,35 @@ public class Historypage extends JFrame {
     // listPanel.revalidate();
     // listPanel.repaint();
     // }
-    private void addHistoryEntry(String date, String title) {
-        entries.add(new HistoryEntry(date, title));
-        refreshHistoryList();
-    }
 
     private void refreshHistoryList() {
         listPanel.removeAll();
 
-    String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
-    int shown = 0;
-    for (HistoryEntry entry : entries) {
-        if (!matches(entry, q)) continue;
-        listPanel.add(createHistoryCard(entry));
-        listPanel.add(Box.createVerticalStrut(10));
-        shown++;
-    }
+        String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
+        int shown = 0;
+        for (DiaryEntry entry : entries) {
+            if (!matches(entry, q))
+                continue;
+            listPanel.add(createHistoryCard(entry));
+            listPanel.add(Box.createVerticalStrut(10));
+            shown++;
+        }
 
-    if (shown == 0) {
-        JLabel empty = new JLabel("No diary found.");
-        empty.setForeground(darkText);
-        empty.setAlignmentX(Component.LEFT_ALIGNMENT);
-        listPanel.add(empty);
-    }
+        if (shown == 0) {
+            JLabel empty = new JLabel("No diary found.");
+            empty.setForeground(darkText);
+            empty.setAlignmentX(Component.LEFT_ALIGNMENT);
+            listPanel.add(empty);
+        }
 
-    listPanel.revalidate();
-    listPanel.repaint();
+        listPanel.revalidate();
+        listPanel.repaint();
     }
 
     // สร้าง history 1 ช่อง พร้อมปุ่ม แก้ไข,ลบ
 
     // private JPanel createHistoryCard(String date, String title) {
-    private JPanel createHistoryCard(HistoryEntry entry) {
+    private JPanel createHistoryCard(DiaryEntry entry) {
 
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
@@ -201,7 +203,7 @@ public class Historypage extends JFrame {
         textPanel.setBackground(Color.WHITE);
 
         // JLabel dateLabel = new JLabel(date);
-        JLabel dateLabel = new JLabel(entry.getDate());
+        JLabel dateLabel = new JLabel(entry.getDate().format(dateFmt));
         dateLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         dateLabel.setForeground(Color.GRAY);
         dateLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -231,14 +233,7 @@ public class Historypage extends JFrame {
         editButton.setFocusPainted(false);
         editButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         editButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        editButton.addActionListener(e -> {
-            String newTitle = JOptionPane.showInputDialog(card, "แก้ไข title:",
-                    entry.getTitle());
-            if (newTitle != null && !newTitle.isBlank()) {
-                entry.setTitle(newTitle);
-                refreshHistoryList(); // วาดรายการใหม่
-            }
-        });
+        editButton.addActionListener(e -> showEdit(entry));
 
         JButton deleteButton = new JButton("Delete");
         deleteButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -252,7 +247,11 @@ public class Historypage extends JFrame {
             int ok = JOptionPane.showConfirmDialog(card, "ลบรายการนี้?", "ยืนยัน",
                     JOptionPane.YES_NO_OPTION);
             if (ok == JOptionPane.YES_OPTION) {
-                entries.remove(entry); // ลบจากข้อมูลจริง
+                if (!storage.delete(entry)) {
+                    JOptionPane.showMessageDialog(card, "Delete failed");
+                    return;
+                }
+                entries.remove(entry);
                 refreshHistoryList();
             }
         });
@@ -265,12 +264,146 @@ public class Historypage extends JFrame {
         card.add(textPanel, BorderLayout.CENTER);
         card.add(actionPanel, BorderLayout.EAST);
 
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                showDetail(entry);
+            }
+        });
         return card;
     }
-    private boolean matches(HistoryEntry e, String q) {
-    if (q.isEmpty()) return true;
-    return e.getTitle().toLowerCase().contains(q)||e.getDate().toLowerCase().contains(q);
-}
+
+    private boolean matches(DiaryEntry e, String q) {
+        if (q.isEmpty())
+            return true;
+        return e.getTitle().toLowerCase().contains(q) || e.getDate().format(dateFmt).toLowerCase().contains(q);
+    }
+
+    private void showDetail(DiaryEntry entry) {
+        JDialog dialog = new JDialog(this, entry.getTitle(), true);
+        dialog.setSize(450, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        panel.setBackground(Color.WHITE);
+
+        JLabel day = new JLabel(entry.getDate().format(dateFmt));
+        JTextArea text = new JTextArea(entry.getContent());
+        text.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        text.setEditable(false);
+        text.setLineWrap(true);
+        text.setWrapStyleWord(true);
+
+        JScrollPane scroll = new JScrollPane(text);
+
+        String path = entry.getImagePath();
+        if (path != null && !path.isBlank() && new File(path).exists()) {
+            ImageIcon icon = new ImageIcon(path);
+            Image scaled = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaled));
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(imageLabel, BorderLayout.SOUTH);
+        }
+
+        panel.add(day, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
+    }
+
+    private void showEdit(DiaryEntry entry) {
+        JDialog dialog = new JDialog(this, "Edit", true);
+        dialog.setSize(450, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        panel.setBackground(Color.WHITE);
+
+        JTextField titleField = new JTextField(entry.getTitle());
+
+        JTextField dateField = new JTextField(entry.getDate().toString());
+        JPanel top = new JPanel(new GridLayout(2, 1, 0, 5));
+        top.setBackground(Color.WHITE);
+        top.add(dateField);
+        top.add(titleField);
+
+        JTextArea text = new JTextArea(entry.getContent());
+        text.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        text.setLineWrap(true);
+        text.setWrapStyleWord(true);
+        JScrollPane scroll = new JScrollPane(text);
+
+        String[] newImage = { entry.getImagePath() };
+        JLabel imageLabel = new JLabel();
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setPreferredSize(new Dimension(200, 150));
+
+        updatePreview(imageLabel, newImage[0]);
+
+        JButton changeImageButton = new JButton("Change Image");
+        changeImageButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                    "Image files (jpg, jpeg, png, gif)", "jpg", "jpeg", "png", "gif"));
+            if (chooser.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
+                newImage[0] = chooser.getSelectedFile().getPath();
+                updatePreview(imageLabel, newImage[0]);
+            }
+        });
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            LocalDate newDate;
+            try {
+                newDate = LocalDate.parse(dateField.getText().trim());
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(dialog, "Date must be yyyy-MM-dd, e.g. 2026-10-13");
+                return;
+            }
+
+            if (titleField.getText().isBlank()) {
+                JOptionPane.showMessageDialog(dialog, "Please enter a title");
+                return;
+            }
+            entry.setDate(newDate);
+            entry.setTitle(titleField.getText());
+            entry.setContent(text.getText());
+            entry.setImagePath(newImage[0]);
+            try {
+                storage.save(entry);
+                refreshHistoryList();
+                dialog.dispose();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(dialog, "Save failed: " + ex.getMessage());
+            }
+        });
+
+        JPanel bottom = new JPanel(new BorderLayout(0, 8));
+        bottom.setBackground(Color.WHITE);
+        bottom.add(imageLabel, BorderLayout.NORTH);
+        bottom.add(changeImageButton, BorderLayout.CENTER);
+        bottom.add(saveButton, BorderLayout.SOUTH);
+
+        panel.add(top, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(bottom, BorderLayout.SOUTH);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
+    }
+
+    private void updatePreview(JLabel label, String path) {
+        if (path != null && !path.isBlank() && new File(path).exists()) {
+            Image scaled = new ImageIcon(path).getImage()
+                    .getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+            label.setIcon(new ImageIcon(scaled));
+        } else {
+            label.setIcon(null);
+        }
+    }
 
     // MAIN (ทดสอบหน้านี้แยก)
 
