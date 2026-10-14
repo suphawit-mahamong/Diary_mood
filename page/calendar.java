@@ -1,11 +1,11 @@
 package page;
 
 import java.awt.*;
-import javax.swing.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
+import javax.swing.*;
 
 public class calendar extends JPanel {
 
@@ -16,6 +16,11 @@ public class calendar extends JPanel {
     private final Color purple = new Color(187, 82, 138);
     private final Color darkText = new Color(60, 55, 70);
 
+    private final Color dayBg = new Color(255, 249, 250); // พื้นปุ่มวันที่
+    private final Color todayBg = new Color(246, 227, 229); // today
+    private final Color selectedBg = new Color(187, 82, 138); // วันที่เรากดเลือก
+    private final Color weekendText = new Color(200, 60, 90); // วันหยุดจ้าเสาร์อาทิตย์
+
     private final JLabel monthYearLabel = new JLabel("", SwingConstants.CENTER);
     private final JPanel daysPanel = new JPanel(new GridLayout(6, 7));
     private final JLabel selectedDateLabel = new JLabel(" ", SwingConstants.CENTER);
@@ -25,6 +30,8 @@ public class calendar extends JPanel {
         currentYearMonth = YearMonth.now();
         selectedDate = LocalDate.now();
         setLayout(new BorderLayout(8, 8));
+        setBackground(background);
+        setPreferredSize(new Dimension(760, 640));
 
         add(buildHeaderPanel(), BorderLayout.NORTH);
         add(buildCalendarPanel(), BorderLayout.CENTER);
@@ -38,10 +45,14 @@ public class calendar extends JPanel {
         header.setBackground(background);
 
         JButton prevButton = new JButton("<");
-        prevButton.setBackground(purple);
-        prevButton.setForeground(darkText);
         JButton nextButton = new JButton(">");
         JButton todayButton = new JButton("Today");
+        for (JButton b : new JButton[] { prevButton, nextButton, todayButton }) {
+            b.setOpaque(true);
+            b.setBackground(purple);
+            b.setForeground(Color.WHITE);
+        }
+        monthYearLabel.setForeground(purple);
 
         prevButton.addActionListener(e -> {
             // มาจาก java.time มันคือ ตัวแปร currentYearMonth มีชนิดข้อมูลเป็น YearMonth จาก
@@ -91,15 +102,28 @@ public class calendar extends JPanel {
 
     public JPanel buildCalendarPanel() {
         JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setBackground(background);
 
         // แถวหัววันในสัปดาห์
         JPanel weekDaysPanel = new JPanel(new GridLayout(1, 7));
+        weekDaysPanel.setBackground(background);
         String[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-        for (String d : dayNames) {
-            JLabel label = new JLabel(d, SwingConstants.CENTER);
+        for (int i = 0; i < dayNames.length; i++) {
+            JLabel label = new JLabel(dayNames[i], SwingConstants.CENTER);
             label.setFont(new Font("SansSerif", Font.BOLD, 14));
+            
+            //ตรงนี้วนลูปเปลี่ยนสีเสาร์-อาทิตย์
+            if (i == 0 || i == 6) {
+                label.setForeground(weekendText);
+            } else {
+                label.setForeground(purple);
+            }
+
+
             weekDaysPanel.add(label);
         }
+
+        daysPanel.setBackground(background);
 
         wrapper.add(weekDaysPanel, BorderLayout.NORTH);
         wrapper.add(daysPanel, BorderLayout.CENTER);
@@ -108,7 +132,9 @@ public class calendar extends JPanel {
 
     public JPanel buildFooterPanel() {
         JPanel footer = new JPanel(new BorderLayout());
+        footer.setBackground(background);
         selectedDateLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        selectedDateLabel.setForeground(darkText);
         footer.add(selectedDateLabel, BorderLayout.CENTER);
         return footer;
     }
@@ -150,12 +176,21 @@ public class calendar extends JPanel {
         JButton dayButton = new JButton(String.valueOf(date.getDayOfMonth()));
         dayButton.setMargin(new Insets(2, 2, 2, 2));
 
+        boolean isWeekend = date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
+                || date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
+
+        dayButton.setOpaque(true);
+        dayButton.setBackground(dayBg);
+        dayButton.setForeground(isWeekend ? weekendText : darkText);
+
         if (date.equals(LocalDate.now())) {
-            dayButton.setBackground(new Color(255, 230, 150)); // ไฮไลต์วันนี้
-            dayButton.setOpaque(true);
+            dayButton.setBackground(todayBg); // ไฮไลต์วันนี้
+            dayButton.setForeground(darkText);
         }
         if (date.equals(selectedDate)) {
-            dayButton.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+            dayButton.setBackground(selectedBg);
+            dayButton.setForeground(Color.WHITE);
+            dayButton.setBorder(BorderFactory.createLineBorder(purple, 2));
         }
 
         dayButton.addActionListener(e -> {
