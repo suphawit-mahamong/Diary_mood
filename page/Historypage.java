@@ -1,11 +1,10 @@
 package page;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.TextStyle;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +21,7 @@ public class Historypage extends JFrame {
 
     private sidebar sideBar;
     private calendar calendar;
-    private final DiaryStorage storage = new DiaryStorage(new File("diaries"));
+    private final DiaryStorage storage = DiaryStorage.CurrentUser();
     private final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yy");
     private List<DiaryEntry> entries = new ArrayList<>();
     private LocalDate filterDate = null;
@@ -274,6 +273,50 @@ public class Historypage extends JFrame {
 
         actionPanel.add(editButton);
         actionPanel.add(deleteButton);
+
+        JButton pinButton = new JButton(); 
+        pinButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        pinButton.setBorderPainted(false);
+        pinButton.setContentAreaFilled(false);
+        pinButton.setFocusPainted(false);
+        pinButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // ตั้งหน้าตาปุ่มตามสถานะปัจจุบัน
+        if (entry.isPinned()) {
+            pinButton.setText("♥");
+            pinButton.setForeground(new Color(220, 50, 80));   // ปักหมุดอยู่
+            } else {
+                pinButton.setText("♡");
+                pinButton.setForeground(Color.GRAY);  // ยังไม่ปักหมุด
+                }
+            pinButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    // สถานะ 
+                    boolean oldValue = entry.isPinned();
+                    boolean newValue;
+                    if (oldValue) {
+                        newValue = false;
+                    } else {
+                        newValue = true;
+                    }
+                    entry.setPinned(newValue);
+
+                    // บันทึกลงไฟล์
+                try {
+                    storage.save(entry);
+                } catch (IOException ex) {
+                    // บันทึกไม่ได้คืนค่าเดิม 
+                    entry.setPinned(oldValue);
+                    JOptionPane.showMessageDialog(card, "Save failed: " + ex.getMessage());
+                    return;
+                }
+
+                // รายการใหม่หัวใจเปลี่ยนสี
+                refreshHistoryList();
+                }
+        });
+        card.add(pinButton, BorderLayout.WEST);
 
         card.add(textPanel, BorderLayout.CENTER);
         card.add(actionPanel, BorderLayout.EAST);

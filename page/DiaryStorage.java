@@ -1,5 +1,4 @@
 package page;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -18,6 +17,16 @@ public class DiaryStorage {
         folder.mkdirs();
     }
 
+    public static DiaryStorage CurrentUser() {
+        String user;
+        if (Collection.isLoggedIn()) {
+            user = Collection.getUser();
+        } else {
+            user = "guest";
+        }
+        return new DiaryStorage(new File("diaries", user));
+    }
+
     public String createNewId() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss"));
     }
@@ -31,6 +40,8 @@ public class DiaryStorage {
             bw.newLine();
             String img = (entry.getImagePath() == null) ? "" : entry.getImagePath();
             bw.write("image=" + img);
+            bw.newLine();
+            bw.write("pinned=" + entry.isPinned());
             bw.newLine();
             bw.write("content=");
             bw.newLine();
@@ -50,6 +61,7 @@ public class DiaryStorage {
                 String dateText = "";
                 String title = "";
                 String image = "";
+                boolean pinned = false;
                 StringBuilder content = new StringBuilder();
                 boolean inContent = false;
 
@@ -66,6 +78,8 @@ public class DiaryStorage {
                         title = line.substring(6);
                     } else if (line.startsWith("image=")) {
                         image = line.substring(6);
+                    } else if (line.startsWith("pinned=")) {
+                        pinned = line.substring(7).equals("true");
                     } else if (line.equals("content=")) {
                         inContent = true;
                     }
@@ -73,7 +87,9 @@ public class DiaryStorage {
                 LocalDate date =LocalDate.parse(dateText);
                 String id = f.getName().replace(".txt", "");
                 String img = image.isEmpty() ? null : image;
-                result.add(new DiaryEntry(id, date, title, content.toString(), img));
+                DiaryEntry entry = new DiaryEntry(id, date, title, content.toString(), img);
+                entry.setPinned(pinned);
+                result.add(entry);
             } catch (IOException | DateTimeParseException e) {
                 // ข้ามไฟล์นี้ไป
             }
@@ -81,7 +97,10 @@ public class DiaryStorage {
         }
         result.sort((a, b) -> b.getDate().compareTo(a.getDate()));
         return result;
+        
     }
+
+     
 
     public boolean delete(DiaryEntry entry){
         File file = new File(folder, entry.getId() + ".txt");

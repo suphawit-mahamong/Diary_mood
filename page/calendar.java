@@ -2,12 +2,10 @@ package page;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
-import javax.swing.Timer.*;
 
 public class calendar extends JPanel {
 
@@ -37,8 +35,11 @@ public class calendar extends JPanel {
 
     public JPanel buildHeaderPanel() {
         JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(background);
 
         JButton prevButton = new JButton("<");
+        prevButton.setBackground(purple);
+        prevButton.setForeground(darkText);
         JButton nextButton = new JButton(">");
         JButton todayButton = new JButton("Today");
 
@@ -78,10 +79,12 @@ public class calendar extends JPanel {
         nevJPanel.add(prevButton);
         nevJPanel.add(nextButton);
         nevJPanel.add(todayButton);
+        nevJPanel.setBackground(background);
 
         header.add(nevJPanel, BorderLayout.CENTER);
         header.add(todayButton, BorderLayout.EAST);
         header.add(monthYearLabel, BorderLayout.NORTH);
+
 
         return header;
     }

@@ -9,6 +9,7 @@ public class DiaryEntry {
     private String title;
     private String content;
     private String imagePath;
+    private boolean pinned;
 
     public DiaryEntry(String id, LocalDate date, String title, String content, String imagePath) {
         this.id = id;
@@ -54,6 +55,12 @@ public class DiaryEntry {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+    public boolean isPinned() {
+        return pinned;
+    }
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
     }
 
     public static void main(String[] args) {

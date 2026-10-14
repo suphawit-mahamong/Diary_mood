@@ -1,9 +1,7 @@
 package page;
-
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import java.util.Scanner;
 
 public class loginpage extends JFrame {
 
@@ -21,7 +19,6 @@ public class loginpage extends JFrame {
         setTitle("Diary mood");
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
         getContentPane().setBackground(background);
         
         //สร้างปุ่มไปหน้า Login 
@@ -101,9 +98,9 @@ public class loginpage extends JFrame {
         show2.setFocusPainted(false);
         show2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-            boolean hidden = t2.getEchoChar() != 0;
-            t2.setEchoChar(hidden ? (char) 0 : '\u2022');
-            show2.setText(hidden ? "🔓" : "🔒");
+                boolean hidden = t2.getEchoChar() != 0;
+                t2.setEchoChar(hidden ? (char) 0 : '\u2022');
+                show2.setText(hidden ? "🔓" : "🔒");
             }
         });
         t2.add(show2, BorderLayout.EAST);
@@ -133,10 +130,6 @@ public class loginpage extends JFrame {
                 String username = t1.getText().trim();
                 String password = new String(t2.getPassword()).trim();
                 String error = User.login(username, password);
-                if (error != null) {
-                    Notice.setText(error);
-                }
-                error = User.login (username, password);
                 if (error == null) {
                     new homepage();
                     dispose();

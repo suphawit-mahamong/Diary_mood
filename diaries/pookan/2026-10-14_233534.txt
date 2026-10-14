@@ -1,0 +1,6 @@
+date=2026-10-14
+title=good day
+image=C:\Users\dd\Downloads\images.jpg
+pinned=true
+content=
+I so happy.

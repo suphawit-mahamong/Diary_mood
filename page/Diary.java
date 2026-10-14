@@ -1,10 +1,9 @@
 package page;
-
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.time.format.DateTimeParseException;
@@ -16,16 +15,23 @@ public class Diary extends JFrame {
     private JTextArea c;
     private File s; // selectedImageFile
     private JLabel i; // imagePreview
-    private DiaryStorage storage;
+    private DiaryStorage storage = DiaryStorage.CurrentUser();
+    private JLabel  Notice;
+    private Runnable onCreated;
+    private boolean pinned = false;
 
     public Diary() {
+    this(null);
+}
+
+    public Diary(Runnable OnCreated) {
+        this.onCreated = OnCreated;
 
         setTitle("Diary mood");
         setSize(650, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        storage = new DiaryStorage(new File("diaries"));
         createDiary();
 
         setLocationRelativeTo(null);
@@ -89,31 +95,44 @@ public class Diary extends JFrame {
 
         cp.add(Box.createVerticalStrut(2));
 
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
+        left.setBackground(background);
         JLabel C = new JLabel("Content");
-        C.setAlignmentX(Component.CENTER_ALIGNMENT);
+        C.setAlignmentX(Component.LEFT_ALIGNMENT);
         c = new JTextArea(10, 20);
         c.setLineWrap(true);
         c.setWrapStyleWord(true);
 
         JScrollPane content = new JScrollPane(c);
         content.setMaximumSize(new Dimension(600, 350));
-        content.setAlignmentX(Component.CENTER_ALIGNMENT);
-        cp.add(C);
-        cp.add(content);
+        content.setAlignmentX(Component.LEFT_ALIGNMENT);
+        left.add(C);
+        left.add(Box.createVerticalStrut(5));
+        left.add(content);
 
+        
+        JPanel right = new JPanel();
+        right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
+        right.setBackground(background);
         JButton addImageButton = new JButton("+ Add Image");
-        addImageButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addImageButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         addImageButton.setBackground(purple);
         addImageButton.setForeground(Color.WHITE);
         addImageButton.setFocusPainted(false);
 
         // แสดงตัวอย่างรูปที่เลือก (ตอนแรกยังไม่มีรูป เลยว่างไว้ก่อน)
         i = new JLabel();
-        i.setAlignmentX(Component.CENTER_ALIGNMENT);
+        i.setAlignmentX(Component.LEFT_ALIGNMENT);
         i.setHorizontalAlignment(SwingConstants.CENTER);
         i.setPreferredSize(new Dimension(200, 150));
         i.setMaximumSize(new Dimension(200, 150));
         i.setBorder(BorderFactory.createDashedBorder(darkText));
+        right.add(Box.createVerticalStrut(25));   // ให้รูปเริ่มระดับเดียวกับกล่องเนื้อหา
+        right.add(i);
+        right.add(Box.createVerticalStrut(10));
+        right.add(addImageButton);
+
 
         addImageButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -136,11 +155,13 @@ public class Diary extends JFrame {
                 i.setText(null);
             }
         });
-
-        cp.add(addImageButton);
-        cp.add(Box.createVerticalStrut(10));
-        cp.add(i);
-
+        JPanel row = new JPanel(new BorderLayout(15, 0));
+        row.setBackground(background);
+        row.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 25));
+        row.add(left, BorderLayout.CENTER);   // เนื้อหายืดตามความกว้างที่เหลือ
+        row.add(right, BorderLayout.EAST);    // รูปกว้างคงที่ 200
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 260));
+        cp.add(row);
         cp.add(Box.createVerticalStrut(30));
 
         JButton b = new JButton("Create");
@@ -148,6 +169,39 @@ public class Diary extends JFrame {
         cp.add(b);
         b.setBackground(purple);
         b.setForeground(Color.WHITE);
+
+        JButton pinButton = new JButton("♡");
+        pinButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        pinButton.setFocusPainted(false);
+        pinButton.setBorderPainted(false);
+        pinButton.setContentAreaFilled(false);
+        pinButton.setForeground(Color.RED);
+        pinButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                // สลับสถานะ
+                pinned = !pinned;
+                if(pinned){
+                    pinButton.setText("♥");
+                    pinButton.setForeground(Color.RED);
+                } else{
+                    pinButton.setText("♡");
+                    pinButton.setForeground(Color.RED);
+                }                       
+            }
+        });
+
+        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonRow.setBackground(background);
+        buttonRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        buttonRow.add(b);
+        buttonRow.add(pinButton);
+        cp.add(buttonRow);
+
+        Notice = new JLabel(" ");
+        Notice.setForeground(new Color(200, 40, 40));
+        Notice.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cp.add(Notice);
+
         b.addActionListener(e -> {
             // 1. ดึงค่าจาก d, t, c, s
             // 2. เช็กว่าช่องไม่ว่าง
@@ -158,23 +212,33 @@ public class Diary extends JFrame {
             String contentText = c.getText();
             String imagePath = (s == null) ? null : s.getPath();
             if (dateText.isBlank()) {
-                JOptionPane.showMessageDialog(this, "Please enter a date");
+                Notice.setText( "Please enter a date");
                 return;
             }
             if (titleText.isBlank()) {
-                JOptionPane.showMessageDialog(this, "Please enter a title");
+                Notice.setText("Please enter a title");
                 return;
             }
             try {
                 LocalDate date = LocalDate.parse(dateText);
                 DiaryEntry entry = new DiaryEntry(storage.createNewId(), date, titleText, contentText, imagePath);
+                entry.setPinned(pinned);
                 storage.save(entry);
-                JOptionPane.showMessageDialog(this, "Saved!");
-                d.setText("");
+
+                if (onCreated != null) {
+                    onCreated.run();     // บอกหน้า home ให้รีเฟรช
+                    }
+
+                Notice.setText( "Saved!");
+                d.setText(LocalDate.now().toString());
                 t.setText("");
                 c.setText("");
                 s = null;
                 i.setIcon(null);
+
+                pinned = false;
+                pinButton.setText("♡");
+                pinButton.setForeground(Color.RED);
             } catch (DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(this, "พิมพ์วันที่เป็นรูปแบบ yyyy-MM-dd เช่น 2026-10-13");
                 return;

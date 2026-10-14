@@ -111,9 +111,11 @@ public class User {
 
     for (User u : readUsers()) {
         if (u.getUsername().equalsIgnoreCase(username)) {
-            if (u.password.equals(password))
+            if (u.password.equals(password)){
                 Collection.login(u.getUsername());
                 return null; // สำเร็จ
+            }
+            return "Incorrect password.";
         }
     }
     return "Username not found. Please sign up first.";

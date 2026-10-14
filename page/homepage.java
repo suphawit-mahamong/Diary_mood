@@ -2,13 +2,14 @@ package page;
 
 import java.awt.*;
 import javax.swing.*;
-
+import java.util.*;
+import java.util.List;
 import java.awt.event.*;
-import java.util.Locale;
-import java.util.Scanner;
 
 public class homepage extends JFrame {
         private sidebar sideBar;
+        private JPanel pinnedPanel;
+        private JPanel todoList;
 
         public homepage() {
 
@@ -94,11 +95,8 @@ public class homepage extends JFrame {
                 // CENTER
 
                 JPanel contentPanel = new JPanel();
-
                 contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-
                 contentPanel.setBackground(background);
-
                 contentPanel.add(Box.createVerticalStrut(25));
 
                 // NEW DIARY BUTTON
@@ -106,21 +104,20 @@ public class homepage extends JFrame {
                 JButton newDiaryButton = new JButton(" + NEW DIARY");
 
                 newDiaryButton.setFont(new Font("SansSerif", Font.BOLD, 16));
-
                 newDiaryButton.setBackground(purple);
                 newDiaryButton.setForeground(Color.WHITE);
-
                 newDiaryButton.setFocusPainted(false);
-
                 newDiaryButton.setMaximumSize(new Dimension(420, 55));
-
                 newDiaryButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
                 newDiaryButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                                 if (e.getSource() == newDiaryButton) {
                                         // ใส่เปลี่ยนหน้า
-                                        new Diary();
+                                        new Diary(new Runnable() {
+                                                public void run() {
+                                                        refreshPinned();
+                                                }
+                                        });
                                 }
 
                         }
@@ -133,82 +130,73 @@ public class homepage extends JFrame {
                 // PINNED DIARY
 
                 JLabel pinnedTitle = new JLabel("PINNED DIARY");
-
                 pinnedTitle.setFont(new Font("SansSerif", Font.BOLD, 16));
-
                 pinnedTitle.setForeground(darkText);
-
                 pinnedTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-
                 contentPanel.add(pinnedTitle);
-
                 contentPanel.add(Box.createVerticalStrut(10));
 
-                // pinned Diary 1
+                // pinned 
 
-                JPanel pinnedDiary1 = createPinnedNote(
-                                "My first day at university kfsdakjfhkj dsfkwejaiofiodkscnasku ivnfaw csaj;f iwa",
-                                "15/09/2026");
-
-                contentPanel.add(pinnedDiary1);
-
-                contentPanel.add(Box.createVerticalStrut(10));
-
-                // pinned Diary 2
-
-                JPanel pinnedDiary2 = createPinnedNote("My favorite memory", "10/09/2026");
-
-                contentPanel.add(pinnedDiary2);
-
+                pinnedPanel = new JPanel();
+                pinnedPanel.setLayout(new BoxLayout(pinnedPanel, BoxLayout.Y_AXIS));
+                pinnedPanel.setBackground(background);
+                pinnedPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                contentPanel.add(pinnedPanel);
+                refreshPinned();
                 contentPanel.add(Box.createVerticalStrut(25));
 
                 // list to do
 
                 JLabel ListToDoTitle = new JLabel("TODAY");
-
                 ListToDoTitle.setFont(new Font("SansSerif", Font.BOLD, 16));
-
                 ListToDoTitle.setForeground(darkText);
-
                 ListToDoTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-
                 contentPanel.add(ListToDoTitle);
-
                 contentPanel.add(Box.createVerticalStrut(10));
 
-                JPanel todoPanel = new JPanel();
-
-                todoPanel.setLayout(new BoxLayout(todoPanel, BoxLayout.Y_AXIS));
-
+                JPanel todoPanel = new JPanel(new BorderLayout(0,8));
                 todoPanel.setBackground(Color.WHITE);
-
                 todoPanel.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
-
                 todoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 145));
-
                 todoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                JCheckBox task1 = new JCheckBox("Writing diary");
-
-                JCheckBox task2 = new JCheckBox("Read a book");
-
-                JCheckBox task3 = new JCheckBox("Do homework");
-
-                task1.setBackground(Color.WHITE);
-                task2.setBackground(Color.WHITE);
-                task3.setBackground(Color.WHITE);
-
-                task1.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
-                task2.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
-                task3.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
-                todoPanel.add(task1);
-                todoPanel.add(task2);
-                todoPanel.add(task3);
-
+                // แถวกรอกงานใหม่
+                JPanel inputRow = new JPanel(new BorderLayout(8, 0));
+                inputRow.setBackground(Color.WHITE);
+                JTextField todoField = new JTextField(10);
+                JButton addTodoButton = new JButton("Add");
+                addTodoButton.setBackground(purple);
+                addTodoButton.setForeground(Color.WHITE);
+                addTodoButton.setFocusPainted(false);
+                inputRow.add(todoField, BorderLayout.CENTER);
+                inputRow.add(addTodoButton, BorderLayout.EAST);
                 contentPanel.add(todoPanel);
+                // รายการงาน
+                todoList = new JPanel();
+                todoList.setLayout(new BoxLayout(todoList, BoxLayout.Y_AXIS));
+                todoList.setBackground(Color.WHITE);
+                
+                JScrollPane todoScroll = new JScrollPane(todoList);
+                todoScroll.setBorder(null);
+                todoScroll.getViewport().setBackground(Color.WHITE);
+
+                todoPanel.add(inputRow, BorderLayout.NORTH);
+                todoPanel.add(todoScroll, BorderLayout.CENTER);
+
+                // กด Add หรือกด Enter ในช่องพิมพ์
+                ActionListener addTodoAction = new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                                String text = todoField.getText().trim();
+                                if (text.isEmpty()) {
+                                        return;
+                                }
+                                addTodo(text);
+                                todoField.setText("");
+                                todoField.requestFocus();
+                        }
+                };
+                addTodoButton.addActionListener(addTodoAction);
+                todoField.addActionListener(addTodoAction);contentPanel.add(todoPanel);
 
                 mainPanel.add(contentPanel, BorderLayout.CENTER);
 
@@ -235,18 +223,38 @@ public class homepage extends JFrame {
                 add(mainPanel);
         }
 
+        private void refreshPinned() {
+                pinnedPanel.removeAll();
+
+                List<DiaryEntry> pinned = new ArrayList<>();
+                for (DiaryEntry e : DiaryStorage.CurrentUser().loadAll()) {
+                        if (e.isPinned()) {
+                                pinned.add(e);
+                        }
+                }
+                if (pinned.isEmpty()) {
+                        JLabel none = new JLabel("No pinned diary yet. Tap ♡ in History to pin one.");
+                        none.setForeground(new Color(60, 55, 70));
+                        none.setAlignmentX(Component.LEFT_ALIGNMENT);
+                        pinnedPanel.add(none);
+                }
+                for (int k = 0; k < Math.min(pinned.size(), 2); k++) {
+                        DiaryEntry e = pinned.get(k);
+                        pinnedPanel.add(createPinnedNote(e.getTitle(), e.getDate().toString()));
+                        pinnedPanel.add(Box.createVerticalStrut(10));
+                }
+
+                pinnedPanel.revalidate();
+                pinnedPanel.repaint();
+        }
+
         // Pinned Note รับ หัวข้อโน้ตกับวันที่
 
         private JPanel createPinnedNote(String title, String date) {
-
                 JPanel note = new JPanel(new BorderLayout());
-
                 note.setBackground(Color.WHITE);
-
                 note.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
-
                 note.setMaximumSize(new Dimension(Integer.MAX_VALUE, 55));
-
                 note.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                 // ข้อความที่แสดงชื่อเรื่องและวันที่เป็นโน้ตแยกกัน
@@ -270,5 +278,26 @@ public class homepage extends JFrame {
 
                 return note;
         }
+
+                private void addTodo(String text) {
+                JCheckBox box = new JCheckBox(text);
+                box.setBackground(Color.WHITE);
+                box.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                box.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                box.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                                if (box.isSelected()) {
+                                        todoList.remove(box);   // ติ๊กแล้วหายไป
+                                        todoList.revalidate();
+                                        todoList.repaint();
+                                }
+                        }
+                });
+                todoList.add(box);
+                todoList.revalidate();
+                todoList.repaint();
+        }
+        
 
 }
