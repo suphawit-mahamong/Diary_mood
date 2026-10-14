@@ -1,4 +1,5 @@
 package page;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +7,6 @@ import java.time.LocalDate;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.time.format.DateTimeParseException;
 
 public class Diary extends JFrame {
 
@@ -16,13 +16,13 @@ public class Diary extends JFrame {
     private File s; // selectedImageFile
     private JLabel i; // imagePreview
     private DiaryStorage storage = DiaryStorage.CurrentUser();
-    private JLabel  Notice;
+    private JLabel Notice;
     private Runnable onCreated;
     private boolean pinned = false;
 
     public Diary() {
-    this(null);
-}
+        this(null);
+    }
 
     public Diary(Runnable OnCreated) {
         this.onCreated = OnCreated;
@@ -111,7 +111,6 @@ public class Diary extends JFrame {
         left.add(Box.createVerticalStrut(5));
         left.add(content);
 
-        
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
         right.setBackground(background);
@@ -128,11 +127,10 @@ public class Diary extends JFrame {
         i.setPreferredSize(new Dimension(200, 150));
         i.setMaximumSize(new Dimension(200, 150));
         i.setBorder(BorderFactory.createDashedBorder(darkText));
-        right.add(Box.createVerticalStrut(25));   // ให้รูปเริ่มระดับเดียวกับกล่องเนื้อหา
+        right.add(Box.createVerticalStrut(25)); // ให้รูปเริ่มระดับเดียวกับกล่องเนื้อหา
         right.add(i);
         right.add(Box.createVerticalStrut(10));
         right.add(addImageButton);
-
 
         addImageButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -158,8 +156,8 @@ public class Diary extends JFrame {
         JPanel row = new JPanel(new BorderLayout(15, 0));
         row.setBackground(background);
         row.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 25));
-        row.add(left, BorderLayout.CENTER);   // เนื้อหายืดตามความกว้างที่เหลือ
-        row.add(right, BorderLayout.EAST);    // รูปกว้างคงที่ 200
+        row.add(left, BorderLayout.CENTER); // เนื้อหายืดตามความกว้างที่เหลือ
+        row.add(right, BorderLayout.EAST); // รูปกว้างคงที่ 200
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 260));
         cp.add(row);
         cp.add(Box.createVerticalStrut(30));
@@ -177,16 +175,16 @@ public class Diary extends JFrame {
         pinButton.setContentAreaFilled(false);
         pinButton.setForeground(Color.RED);
         pinButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 // สลับสถานะ
                 pinned = !pinned;
-                if(pinned){
+                if (pinned) {
                     pinButton.setText("♥");
                     pinButton.setForeground(Color.RED);
-                } else{
+                } else {
                     pinButton.setText("♡");
                     pinButton.setForeground(Color.RED);
-                }                       
+                }
             }
         });
 
@@ -203,22 +201,20 @@ public class Diary extends JFrame {
         cp.add(Notice);
 
         b.addActionListener(e -> {
-            // 1. ดึงค่าจาก d, t, c, s
-            // 2. เช็กว่าช่องไม่ว่าง
-            // 3. เขียนลงไฟล์ CSV
-            // 4. เคลียร์ช่อง / แจ้งผู้ใช้ว่าบันทึกแล้ว
             String dateText = d.getText();
             String titleText = t.getText();
             String contentText = c.getText();
             String imagePath = (s == null) ? null : s.getPath();
+
             if (dateText.isBlank()) {
-                Notice.setText( "Please enter a date");
+                Notice.setText("Please enter a date");
                 return;
             }
             if (titleText.isBlank()) {
                 Notice.setText("Please enter a title");
                 return;
             }
+
             try {
                 LocalDate date = LocalDate.parse(dateText);
                 DiaryEntry entry = new DiaryEntry(storage.createNewId(), date, titleText, contentText, imagePath);
@@ -226,10 +222,11 @@ public class Diary extends JFrame {
                 storage.save(entry);
 
                 if (onCreated != null) {
-                    onCreated.run();     // บอกหน้า home ให้รีเฟรช
-                    }
+                    onCreated.run(); // บอกหน้า home ให้รีเฟรช
+                }
+                dispose();
 
-                Notice.setText( "Saved!");
+                Notice.setText("Saved!");
                 d.setText(LocalDate.now().toString());
                 t.setText("");
                 c.setText("");
@@ -239,12 +236,8 @@ public class Diary extends JFrame {
                 pinned = false;
                 pinButton.setText("♡");
                 pinButton.setForeground(Color.RED);
-            } catch (DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(this, "พิมพ์วันที่เป็นรูปแบบ yyyy-MM-dd เช่น 2026-10-13");
-                return;
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Save failed: " + ex.getMessage());
-                return;
+                ex.printStackTrace();
             }
         });
 

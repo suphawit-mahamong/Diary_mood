@@ -230,9 +230,6 @@ public class Historypage extends JFrame {
         textPanel.add(dateLabel);
         textPanel.add(titleLabel);
 
-        // เก็บหัวเรื่องไว้ใน property ของการ์ด เพื่อให้ช่องค้นหากรองได้ (ค่อยทำ)
-        card.putClientProperty("title", getTitle());
-
         // ปุ่ม แก้ไข,ลบ
         JPanel actionPanel = new JPanel();
         actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.Y_AXIS));
