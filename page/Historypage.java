@@ -1,16 +1,19 @@
 package page;
 
+//ใช้ทำ gui ทั่วไฟ
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+//เช็คไฟล์์กับตรวจ error
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
+// List คือ interface ของลิสต์ และ ArrayList คือตัวที่ใช้งานจริง ใช้เก็บ entries
 import java.util.List;
 import java.util.ArrayList;
+//LocalDate เก็บวันที่ DateTimeFormatter จัดรูปแบบวันที่เป็น dd/MM/yy DateTimeParseException เกิดเมื่อแปลงข้อความเป็นวันที่ไม่ได้ (ใช้ในหน้าต่าง Edit)
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
-import javax.swing.*;
 
 public class Historypage extends JFrame {
 
@@ -26,6 +29,7 @@ public class Historypage extends JFrame {
     private List<DiaryEntry> entries = new ArrayList<>();
     private LocalDate filterDate = null;
     private JLabel filterLabel = new JLabel("Showing: all");
+    private JLabel Notice;
 
     // พาเนลที่เก็บรายการ history ทั้งหมด (ไว้เพื่อลบ/กรองการ์ดออกได้)
     private JPanel listPanel;
@@ -40,6 +44,13 @@ public class Historypage extends JFrame {
         getContentPane().setBackground(background);
 
         createUI();
+        // ทำให้ตัวหน้า Refresh ทุกครั้งเพื่อดึงข้อมูลที่พึ่งเพิ่มขึ้นมา
+        addWindowListener(new WindowAdapter() {
+            public void windowActivated(WindowEvent e) {
+                entries = storage.loadAll();
+                refreshHistoryList();
+            }
+        });
 
         setLocationRelativeTo(null);
         setVisible(true);
@@ -144,8 +155,10 @@ public class Historypage extends JFrame {
         listPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // ข้อมูลสมมติ
-        entries = storage.loadAll();
-        refreshHistoryList();
+        /*
+         * entries = storage.loadAll();
+         * refreshHistoryList();
+         */
 
         JScrollPane scrollPane = new JScrollPane(listPanel);
         scrollPane.setBorder(null);
@@ -177,7 +190,7 @@ public class Historypage extends JFrame {
     private void refreshHistoryList() {
         listPanel.removeAll();
         filterLabel.setText(filterDate == null ? "Showing: all"
-        : "Showing: " + filterDate.format(dateFmt) + " (click again to show all)");
+                : "Showing: " + filterDate.format(dateFmt) + " (click again to show all)");
         String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
         int shown = 0;
         for (DiaryEntry entry : entries) {
@@ -254,16 +267,31 @@ public class Historypage extends JFrame {
         deleteButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         deleteButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         deleteButton.addActionListener(e -> {
-            int ok = JOptionPane.showConfirmDialog(card, "ลบรายการนี้?", "ยืนยัน",
-                    JOptionPane.YES_NO_OPTION);
-            if (ok == JOptionPane.YES_OPTION) {
-                if (!storage.delete(entry)) {
-                    JOptionPane.showMessageDialog(card, "Delete failed");
-                    return;
+            JDialog confirm = new JDialog(this, "ยืนยัน", true);
+            confirm.setSize(250, 130);
+            confirm.setLocationRelativeTo(this);
+
+            JLabel question = new JLabel("ลบรายการนี้?", SwingConstants.CENTER);
+
+            JButton yesButton = new JButton("Yes");
+            yesButton.addActionListener(e2 -> {
+                if (storage.delete(entry)) {
+                    entries.remove(entry);
+                    refreshHistoryList();
                 }
-                entries.remove(entry);
-                refreshHistoryList();
-            }
+                confirm.dispose();
+            });
+
+            JButton noButton = new JButton("No");
+            noButton.addActionListener(e2 -> confirm.dispose());
+
+            JPanel buttons = new JPanel();
+            buttons.add(yesButton);
+            buttons.add(noButton);
+
+            confirm.add(question, BorderLayout.CENTER);
+            confirm.add(buttons, BorderLayout.SOUTH);
+            confirm.setVisible(true);
         });
 
         // ปุ่มแก้ไข/ลบ
@@ -271,7 +299,7 @@ public class Historypage extends JFrame {
         actionPanel.add(editButton);
         actionPanel.add(deleteButton);
 
-        JButton pinButton = new JButton(); 
+        JButton pinButton = new JButton();
         pinButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
         pinButton.setBorderPainted(false);
         pinButton.setContentAreaFilled(false);
@@ -281,38 +309,39 @@ public class Historypage extends JFrame {
         // ตั้งหน้าตาปุ่มตามสถานะปัจจุบัน
         if (entry.isPinned()) {
             pinButton.setText("♥");
-            pinButton.setForeground(new Color(220, 50, 80));   // ปักหมุดอยู่
-            } else {
-                pinButton.setText("♡");
-                pinButton.setForeground(Color.GRAY);  // ยังไม่ปักหมุด
+            pinButton.setForeground(new Color(220, 50, 80)); // ปักหมุดอยู่
+        } else {
+            pinButton.setText("♡");
+            pinButton.setForeground(Color.GRAY); // ยังไม่ปักหมุด
+        }
+        pinButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                // สถานะ
+                boolean oldValue = entry.isPinned();
+                boolean newValue;
+                if (oldValue) {
+                    newValue = false;
+                } else {
+                    newValue = true;
                 }
-            pinButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                entry.setPinned(newValue);
 
-                    // สถานะ 
-                    boolean oldValue = entry.isPinned();
-                    boolean newValue;
-                    if (oldValue) {
-                        newValue = false;
-                    } else {
-                        newValue = true;
-                    }
-                    entry.setPinned(newValue);
-
-                    // บันทึกลงไฟล์
+                // บันทึกลงไฟล์
                 try {
                     storage.save(entry);
                 } catch (IOException ex) {
-                    // บันทึกไม่ได้คืนค่าเดิม 
+                    // บันทึกไม่ได้คืนค่าเดิม
                     entry.setPinned(oldValue);
-                    JOptionPane.showMessageDialog(card, "Save failed: " + ex.getMessage());
+                    ex.printStackTrace();
                     return;
                 }
 
                 // รายการใหม่หัวใจเปลี่ยนสี
                 refreshHistoryList();
-                }
+            }
         });
+
         card.add(pinButton, BorderLayout.WEST);
 
         card.add(textPanel, BorderLayout.CENTER);
@@ -327,6 +356,8 @@ public class Historypage extends JFrame {
         return card;
     }
 
+    // เช็คว่า diary นี้ควรแสดงในรายการไหม โดยเทียบกับข้อความค้นหา q
+    // และวันที่ที่เลือกจากปฏิทิน (filterDate) ถ้า true คือควร
     private boolean matches(DiaryEntry e, String q) {
         if (filterDate != null && !e.getDate().equals(filterDate)) {
             return false;
@@ -336,7 +367,9 @@ public class Historypage extends JFrame {
         return e.getTitle().toLowerCase().contains(q) || e.getDate().format(dateFmt).toLowerCase().contains(q);
     }
 
+    // ไว้ใช้ดูเนื้อหาใน Diary ที่เลือก
     private void showDetail(DiaryEntry entry) {
+        // จะทำการขึ้นเป็หน้าต่างย่อ และทพให้กดข้างหลังไม่ได้
         JDialog dialog = new JDialog(this, entry.getTitle(), true);
         dialog.setSize(450, 400);
         dialog.setLocationRelativeTo(this);
@@ -354,6 +387,8 @@ public class Historypage extends JFrame {
 
         JScrollPane scroll = new JScrollPane(text);
 
+        // เช็คว่ามีรูปอยู่ไหม มี path ไหม, path ไม่ว่างไหม, และไฟล์รูปยังอยู่จริงไหม
+        // ถ้าผ่านหมดค่อยย่อรูปเป็น 200x150 แล้วแสดง ถ้าไม่ผ่านก็ข้ามไปเฉยๆ ไม่ error
         String path = entry.getImagePath();
         if (path != null && !path.isBlank() && new File(path).exists()) {
             ImageIcon icon = new ImageIcon(path);
@@ -370,7 +405,9 @@ public class Historypage extends JFrame {
         dialog.setVisible(true);
     }
 
+    // ไว้ใช้สำหรับให้โชว์เนื้อหาทั้งหมดในdiary นั้นเพื่อแก้ไขข้อมูล
     private void showEdit(DiaryEntry entry) {
+        // ทำให้มีหน้าต่างย่อนขึ้นมาและไม่สามารถกดข้างหลังได้
         JDialog dialog = new JDialog(this, "Edit", true);
         dialog.setSize(450, 400);
         dialog.setLocationRelativeTo(this);
@@ -387,62 +424,93 @@ public class Historypage extends JFrame {
         top.add(dateField);
         top.add(titleField);
 
+        // ช่องแก้ไขเนื้อหา
         JTextArea text = new JTextArea(entry.getContent());
         text.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        // ถ้าข้อความยาวเกินไปจะตัดข้อความและขึ้นบรรทัดใหม่
         text.setLineWrap(true);
+        // ตัดข้อคามตามขอบคำ
         text.setWrapStyleWord(true);
+        // ถ้ายาวเกินให้ใช้ scroll เพื่อเลื่่อนดูได้
         JScrollPane scroll = new JScrollPane(text);
 
+        // จัดการรูปภาพ
+        // เก็บ path เดิมของ entry
         String[] newImage = { entry.getImagePath() };
+        // ไว้ใช้เก็บรูปตัวอย่าง
         JLabel imageLabel = new JLabel();
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setPreferredSize(new Dimension(200, 150));
 
+        // เมธอด เพื่อแสดงรูปปัจจุบัน (ถ้าไม่มีรูปหรือไฟล์หาย ก็จะล้างไอคอนให้ว่าง)
         updatePreview(imageLabel, newImage[0]);
 
+        // ปุ่มเปลี่ยนรูป
         JButton changeImageButton = new JButton("Change Image");
         changeImageButton.addActionListener(e -> {
+            // ใช้สำหรับเลือกไฟล์ขอระบบ
             JFileChooser chooser = new JFileChooser();
+            // กรอกเฉพาะนามสกุลตามที่กำหนด
             chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
                     "Image files (jpg, jpeg, png, gif)", "jpg", "jpeg", "png", "gif"));
+            // แสดงหน้าต่างเลือกไฟล์ โดยมี dialog เป็นหน้าต่างแม่ ถ้าผู้ใช้กด Open จะได้
+            // APPROVE_OPTION ถ้ากด Cancel หรือปิด จะไม่เข้าเงื่อนไข และไม่มีอะไรเปลี่ยน
             if (chooser.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
+                // เก็บ path ของไฟล์ที่เลือกลงอาร์เรย์ แล้วอัปเดตรูปตัวอย่างให้เห็นทันที
                 newImage[0] = chooser.getSelectedFile().getPath();
                 updatePreview(imageLabel, newImage[0]);
             }
         });
 
+        // กล่องไว้แจ้งเตือน
+        Notice = new JLabel(" ");
+        Notice.setForeground(Color.RED);
+
+        // ปุ่มเซฟหลังจากแก้ข้อมูลเสร็จ
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
+            // ตรวจวันที่
             LocalDate newDate;
+
             try {
+                // แปลงข้อมูลเป็นวันที่ ถ้าผิดจะมีข้อความแจ้งว่าวันที่ผิด
                 newDate = LocalDate.parse(dateField.getText().trim());
             } catch (DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(dialog, "Date must be yyyy-MM-dd, e.g. 2026-10-13");
+                Notice.setText("Please enter a date");
                 return;
             }
-
+            // ถ้าตัว title ว่างเปล่าหรือมีแต่ช่องว่าจะขึ้นเตือนให้สิ่งหัวข้อ
             if (titleField.getText().isBlank()) {
-                JOptionPane.showMessageDialog(dialog, "Please enter a title");
+                Notice.setText("Please enter a title");
                 return;
             }
+            // อัพเดทข้อมูลใน entry
             entry.setDate(newDate);
             entry.setTitle(titleField.getText());
             entry.setContent(text.getText());
             entry.setImagePath(newImage[0]);
             try {
+                // เขียนทับไฟล์ .txt เดิม(ใช้ id เดิม จึงเป็นการแก้ ไม่ได้สร้างใหม่) และเขียนเสร็จแล้วปิดหน้า
                 storage.save(entry);
                 refreshHistoryList();
                 dialog.dispose();
+                // ถ้า error จะแจ้งผลลัพธ์
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(dialog, "Save failed: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
+
+        // สร้างแผงย่อยที่เรียงจากบนลงล่าง: รูปตัวอย่าง → ปุ่ม Change Image → ปุ่ม Save โดย (0, 8) คือเว้นระยะแนวตั้ง 8 พิกเซล
+        JPanel buttons = new JPanel(new BorderLayout(0, 8));
+        buttons.setBackground(Color.WHITE);
+        buttons.add(changeImageButton, BorderLayout.NORTH);
+        buttons.add(saveButton, BorderLayout.CENTER);
+        buttons.add(Notice, BorderLayout.SOUTH);
 
         JPanel bottom = new JPanel(new BorderLayout(0, 8));
         bottom.setBackground(Color.WHITE);
         bottom.add(imageLabel, BorderLayout.NORTH);
-        bottom.add(changeImageButton, BorderLayout.CENTER);
-        bottom.add(saveButton, BorderLayout.SOUTH);
+        bottom.add(buttons, BorderLayout.CENTER);
 
         panel.add(top, BorderLayout.NORTH);
         panel.add(scroll, BorderLayout.CENTER);
@@ -452,6 +520,7 @@ public class Historypage extends JFrame {
         dialog.setVisible(true);
     }
 
+    // เมธวดช่วย แสดงรูปตัวอย่างใน labal ถ้า path ไม่ใช่ null, ไม่ว่าง และไฟล์มีอยู่จริง จะโหลดรูป ย่อเป็น 200x150 แล้วตั้งเป็นไอคอนของ label ถ้าไม่ผ่านเงื่อนไข จะเคลียร์ไอคอน (null) ให้ label ว่าง
     private void updatePreview(JLabel label, String path) {
         if (path != null && !path.isBlank() && new File(path).exists()) {
             Image scaled = new ImageIcon(path).getImage()

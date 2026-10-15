@@ -1,9 +1,9 @@
 package page;
-
+//ไว้เก็บวันที่อย่างเดียว
 import java.time.LocalDate;
 
 public class DiaryEntry {
-
+    //ข้อมูลที่เก็บ
     private final String id;
     private LocalDate date;
     private String title;
@@ -11,6 +11,7 @@ public class DiaryEntry {
     private String imagePath;
     private boolean pinned;
 
+    //รับค่า 5 อย่างมาเก็บลง field โดยใช้ this. แยกจากพารามิเตอร์ที่ชื่อซ้ำ
     public DiaryEntry(String id, LocalDate date, String title, String content, String imagePath) {
         this.id = id;
         this.date = date;
@@ -19,7 +20,7 @@ public class DiaryEntry {
         this.imagePath = imagePath;
     }
 
-    // getter ทุกตัว
+    // getter ทุกตัว อ่านค่าในแต่ละตัวแปร
     public String getId() {
         return id;
     }
@@ -40,7 +41,7 @@ public class DiaryEntry {
         return date;
     }
 
-    // setter (ไม่มีของ id)
+    // setter (ไม่มีของ id) แก้ค่าแล้วเก็บเข้าในตัวแปร
     public void setDate(LocalDate date) {
         this.date = date;
     }

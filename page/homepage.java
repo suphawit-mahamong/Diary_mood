@@ -2,9 +2,10 @@ package page;
 
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-import java.awt.event.*;
+
 
 public class homepage extends JFrame {
         private sidebar sideBar;
@@ -69,12 +70,15 @@ public class homepage extends JFrame {
                 greetingPanel.setLayout(new BoxLayout(greetingPanel, BoxLayout.Y_AXIS));
                 greetingPanel.setBackground(background);
 
+                // โชว์ชื่อผู้ใช้
                 String name;
                 if (Collection.isLoggedIn()) {
                         name = Collection.getUser();
                 } else {
                         name = "User";
                 }
+
+                // โชว์ในหน้า homepage hi + username
                 JLabel greetingLine1 = new JLabel("Hi, " + name);
                 greetingLine1.setFont(new Font("SansSerif", Font.BOLD, 18));
                 greetingLine1.setForeground(darkText);
@@ -114,6 +118,7 @@ public class homepage extends JFrame {
                                 if (e.getSource() == newDiaryButton) {
                                         // ใส่เปลี่ยนหน้า
                                         new Diary(new Runnable() {
+                                                // เมื่อสร้าง diary เสร็จ ให้เรียก refreshPinned()" เพื่อให้หน้า Home โหลดรายการ pinned ใหม่ทันที ถ้าผู้ใช้ปักหมุด diary อันใหม่ จะขึ้นที่หน้า Home เลยโดยไม่ต้องเปิดใหม่
                                                 public void run() {
                                                         refreshPinned();
                                                 }
@@ -137,7 +142,7 @@ public class homepage extends JFrame {
                 contentPanel.add(Box.createVerticalStrut(10));
 
                 // pinned
-
+                // สร้าง panel เปล่าสำหรับใส่การ์ด pinned เรียงแนวตั้ง แล้วเรียก refreshPinned() ครั้งแรกเพื่อโหลดข้อมูลมาแสดง
                 pinnedPanel = new JPanel();
                 pinnedPanel.setLayout(new BoxLayout(pinnedPanel, BoxLayout.Y_AXIS));
                 pinnedPanel.setBackground(background);
@@ -224,27 +229,32 @@ public class homepage extends JFrame {
                 add(mainPanel);
         }
 
+        // เมธอดนี้ทำหน้าที่ โหลดและวาดรายการ diary ที่ปักหมุดใหม่
         private void refreshPinned() {
+                // ลบ component ทุกอย่างใน pinnedPanel ออกก่อน
                 pinnedPanel.removeAll();
-
+                // คัดเฉพาะอันที่ปักหมุด
                 List<DiaryEntry> pinned = new ArrayList<>();
+                //  สร้าง storage ของผู้ใช้ที่ล็อกอินอยู่ (โฟลเดอร์ diaries/<username>) อ่านไฟล์ .txt ทั้งหมด คืนเป็นลิสต์ที่เรียงจากวันที่ใหม่ไปเก่าวนดูทีละอัน เก็บเฉพาะอันที่ isPinned() เป็น true ลงลิสต์ pinned
                 for (DiaryEntry e : DiaryStorage.CurrentUser().loadAll()) {
                         if (e.isPinned()) {
                                 pinned.add(e);
                         }
                 }
+                // แสดงข้อความแนะนำว่า "ยังไม่มี diary ที่ปักหมุด กดรูป ♡ ในหน้า History เพื่อปักหมุด" จัดชิดซ้าย
                 if (pinned.isEmpty()) {
                         JLabel none = new JLabel("No pinned diary yet. Tap ♡ in History to pin one.");
                         none.setForeground(new Color(60, 55, 70));
                         none.setAlignmentX(Component.LEFT_ALIGNMENT);
                         pinnedPanel.add(none);
                 }
+                // วนลูป เพื่อเลือกค่าที่น้อยที่สุดมาแสดง โดยจะแสดงแค่ 2 อัน
                 for (int k = 0; k < Math.min(pinned.size(), 2); k++) {
                         DiaryEntry e = pinned.get(k);
                         pinnedPanel.add(createPinnedNote(e.getTitle(), e.getDate().toString()));
                         pinnedPanel.add(Box.createVerticalStrut(10));
                 }
-
+                // บอก Swing ให้วาดใหม่ หลังเพิ่ม/ลบ component
                 pinnedPanel.revalidate();
                 pinnedPanel.repaint();
         }
